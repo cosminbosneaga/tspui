@@ -78,6 +78,7 @@ public class Genetic {
 			newPopulation.add(currentPopulation.get(i)+deviation*sigma);
 		}
 		step++;
+		validateCoordinates();
 		System.out.println("Deviated:");
 		printArr(newPopulation);
 	}
@@ -123,7 +124,7 @@ public class Genetic {
 		Adjacency.createMatrix();
 		// Calculate path using nearest neighbour first method
 		NNF.findPath();
-		heuristic = Tour.printTour();
+		heuristic = Tour.tourDistance(Tour.getTour());
 		
 		ArrayList<Integer> set = new ArrayList<Integer>(); //Create an ArrayList
         for(int i=0;i<NodeList.size();i++){
@@ -138,6 +139,59 @@ public class Genetic {
 				"\nMinimum:"+df.format(optimal)+
 				"\nDifference:"+df.format((heuristic-optimal)));
 		return heuristic-optimal;
+	}
+	
+	public static void validateCoordinates(){
+		// Fix negative coordinates
+		// Assume all coordinates are valid
+		boolean valid = true;
+		double minx=0, miny=0;
+		for(int i=0;i<size;i++){
+			if( newPopulation.get(i) < 0 ){
+				valid = false;
+				if(i%2==0 && newPopulation.get(i)<minx){
+					minx = newPopulation.get(i);
+				}else if(i%2==1 && newPopulation.get(i)<miny){
+					miny = newPopulation.get(i);
+				}
+			}
+		}
+		
+		if(valid == false){
+			for(int i=0;i<size;i++){
+				if(i%2==0){
+					newPopulation.set(i,newPopulation.get(i)-minx);
+				}else{
+					newPopulation.set(i,newPopulation.get(i)-miny);
+				}
+			}
+			System.out.println("Fixed negative coords!");
+		}
+		
+		// Fix large coordinates
+		valid = true;
+		double maxx=500, maxy=500;
+		for(int i=0;i<size;i++){
+			if( i%2==0 && newPopulation.get(i)>maxx){
+				valid = false;
+				maxx = newPopulation.get(i);
+			}else if(i%2==1 && newPopulation.get(i)>maxy){
+				valid = false;
+				maxy = newPopulation.get(i);
+			}
+		}
+		
+		if(valid == false){
+			for(int i=0;i<size;i++){
+				if(i%2==0){
+					newPopulation.set(i, (newPopulation.get(i)*(double)(500/maxx)));
+				}else{
+					newPopulation.set(i, (newPopulation.get(i)*(double)(500/maxy)));
+				}
+			}
+			System.out.println("Repositioned!");
+		}
+		
 	}
 	
 

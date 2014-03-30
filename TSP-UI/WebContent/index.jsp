@@ -4,7 +4,7 @@
 <%@ page import="tsp.NodeList" %>
 <%@ page import="tsp.Node" %>
 <% // call number of nodes, mutation size
-Genetic.evolutionary(5,20); %>
+//Genetic.evolutionary(5,20); %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
@@ -13,6 +13,13 @@ Genetic.evolutionary(5,20); %>
 
 </head>
 <body>
+<div id="header">
+	<form id="game" method="post" action="Main">
+		<input type="text" id="nodes" name="nodes">
+		<input type="text" id="mutations" name="mutations">
+		<input type="submit" value="Start game">
+	</form>
+</div>
 <div id="container"></div>
     <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.0.min.js">
     </script>

@@ -4,15 +4,15 @@ import java.util.ArrayList;
 
 public class Tour {
 	
-	private static ArrayList<Integer> tour = new ArrayList<Integer>();
+	private static ArrayList<Integer> nnTour = new ArrayList<Integer>();
 	
 	public static void addNode(Integer n) {
-        tour.add(n);
+        getTour().add(n);
     }
 	
 	public static boolean exists(Integer n){
 		for(int i = 0; i<size();i++){
-    		if(tour.get(i) == n){
+    		if(getTour().get(i) == n){
     			return false;
     		}
     	}
@@ -20,10 +20,10 @@ public class Tour {
 	}
     
     public static int size(){
-        return tour.size();
+        return getTour().size();
     }
     
-    public static double printTour(){
+    public static double tourDistance(ArrayList<Integer> tour){
     	
     	//System.out.print("The tour is: ");
     	double total=0;
@@ -39,4 +39,18 @@ public class Tour {
     	//System.out.println("Total: "+total);
     	return total; 
     }
+
+	/**
+	 * @return the tour
+	 */
+	public static ArrayList<Integer> getTour() {
+		return nnTour;
+	}
+
+	/**
+	 * @param tour the tour to set
+	 */
+	public static void setTour(ArrayList<Integer> tour) {
+		Tour.nnTour = tour;
+	}
 }
