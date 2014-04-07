@@ -9,18 +9,93 @@
 <html>
 	<head>
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	<title>Insert title here</title>
-
+	<title>Game Name</title>
+	<link rel="stylesheet" type="text/css" href="style.css"/>
+	<script type="text/javascript" src="js/jquery.min.js"></script>
+	<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="js/jquery-ui.js"></script>
+	<script>
+	
+	function start() {
+		modalBox = document.getElementById("start");
+		modalBox.style.visibility = (modalBox.style.visibility == "visible") ? "hidden" : "visible";
+	}
+	
+	var seconds = 0;
+	function startGame() {
+		document.getElementById("start").style.visibility = 'hidden';
+		setInterval(timer, 1000);
+	}
+	
+	function timer() {
+		++seconds;
+		var timerDiv = document.getElementById("timer");
+		timerDiv.innerHTML = "<p>Time:"+seconds+"</p>";
+	}
+	
+	setInterval(timer, 1000);
+	$(document).ready(function(e) {
+	$( "#newGame" ).on('click', function( event ) {
+		event.preventDefault();
+		var data = {
+				"nodes": $("#nodes").val(),
+				"mutations": $("#mutations").val()
+		}
+		
+		console.log("se trimite");
+	
+		$.ajax({
+			url: '/TSP-UI/Main',
+			type: 'POST',
+			data:  data,
+			dataType: "json",
+			async: false,
+			success: function(response)
+			{
+				console.log("raspuns"+response);	
+			},
+			 error: function(xhr, ajaxOptions, thrownError) 
+			{	
+				console.log("POST Customer Data Error!");
+				console.log(xhr.status);
+				console.log(thrownError);
+			}          
+		});
+		
+		event.preventDefault();
+	});
+	});
+	
+	</script>
 </head>
 <body>
-<div id="header">
-	<form id="game" method="post" action="Main">
-		<input type="text" id="nodes" name="nodes">
-		<input type="text" id="mutations" name="mutations">
-		<input type="submit" value="Start game">
-	</form>
-</div>
-<div id="container"></div>
+	
+	<div id="start">
+		<div>
+			<p>You have chosen to start the game with X nodes and Y mutations.</p>
+			<p>Press start to start the game</p>
+			<input type="button" onClick='startGame()' value="Start"/>
+		</div>
+	</div>
+	
+	<div id="header">
+		<h2>Game Name</h2>
+		<form id="game" method="post" action="">
+			<label>Nodes: </label>
+			<input type="text" id="nodes" name="nodes">
+			<label>Mutations: </label>
+			<input type="text" id="mutations" name="mutations">
+			<button id="newGame">Start Gam</button>
+		</form>
+		
+	</div>
+	
+	<div id="timer">
+			<p>Time: </p>
+	</div>
+
+	<div id="container"></div>
+	
     <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.0.min.js">
     </script>
     <script defer="defer">
@@ -39,34 +114,35 @@
 		var endy = 0;
 		<%	out.println("var n="+NodeList.size() +";"); %>
 		
-		var min = 20;
-		var max = 480;
-		
-	Array.prototype.contains = function(obj) {
-    var i = this.length;
-    while (i--) {
-        if (this[i] == obj) {
-            return true;
-        }
-    }
-    return false;
-}
-
-	Array.prototype.all = function(size) {
-	var i = this.length;
-	}
-
- Array.prototype.last = function() {
-        return this[this.length-1];
-    }
-		
-	Array.prototype.complete = function(n) {
-		if ( this.length == n)
-		{
-			return true;
+		if (n!=0){
+			//start();
 		}
-		return false;
-	}
+		
+		Array.prototype.contains = function(obj) {
+    		var i = this.length;
+    		while (i--) {
+       			 if (this[i] == obj) {
+           			 return true;
+        		 }
+    		}
+    		return false;
+		}
+
+		Array.prototype.all = function(size) {
+			var i = this.length;
+		}
+
+ 		Array.prototype.last = function() {
+      	    return this[this.length-1];
+    	}
+		
+		Array.prototype.complete = function(n) {
+			if ( this.length == n)
+			{
+				return true;
+			}
+			return false;
+		}
 		
 		// visited arrray for visited nodes must start and end with 1.
 		var visited = new Array();
@@ -75,6 +151,27 @@
 		var nodes = new Array();
 		var lines = new Array();
 		visited.push(1);
+		
+		function addLine(startNode,endNode){
+			if( startNode < endNode )
+			{
+				lines["line"+startNode+"-"+endNode].stroke('black');
+			}
+			else
+			{
+				lines["line"+endNode+"-"+startNode].stroke('black');
+			}
+			visited.push(endNode);
+			console.log("clicked "+endNode);
+			lines_layer.draw();
+		}
+		
+		function finished(){
+			if(visited.complete(n)){
+				addLine(visited.last(),1);
+				alert("finished");
+			}
+		}
 </script>
 
 <% 
@@ -103,38 +200,29 @@ for(int i=1;i<=NodeList.size();i++){
 	"{\n" +
 	"node1.setFill('red');\n" +
 	"node1.setRadius(15);\n" +
-	"nodes_layer.draw();\n" +
+	"nodes_layer.batchDraw();\n" +
 	"}\n" +
 	"node" + i + ".on('mouseover', function() {\n" +
 				"this.setFill('red');\n" +
 				"this.setRadius(15);\n" +
-				"nodes_layer.draw();\n" +
+				"nodes_layer.batchDraw();\n" +
 			"});\n" +
 			"node" + i + ".on('mouseout', function() {\n" +
 			"	if( visited.contains(" + i + ") === false )\n" +
 				"{\n" +
 					"this.setFill('cyan');\n" +
 					"this.setRadius(10);\n" +
-					"nodes_layer.draw();\n" +
+					"nodes_layer.batchDraw();\n" +
 				"}\n" +
 			"});\n" +
 		"	node" + i + ".on('click', function() {\n" +
-				"if( visited.contains(" + i +") === false )\n" +
-				"{\n" +
-				"	var start_node = visited.last();\n" +
-				"	var end_node = " + i + ";\n" +
-				"	if( start_node < end_node )\n" +
-				"	{\n" +
-				"		lines[\"line\"+start_node+\"-\"+end_node].stroke('blue');\n" +
-				"}\n" +
-				"	else\n" +
-				"{\n" +
-				"		lines[\"line\"+end_node+\"-\"+start_node].stroke('blue');\n" +
-				"}\n" +
-					"lines_layer.draw();\n" +
-				"	visited.push(" + i +");\n" +
-					"console.log(\"clicked " + i + "\");\n" +
-				"}\n" 
+				"if( visited.contains(" + i + ") === false )" +
+				"{" +
+				"	var startNode = visited.last();" +
+				"	var endNode = "+ i + ";" +
+				"	addLine(startNode,endNode);" +
+				"	finished();" +
+				"}"
 			);
 		
 	if(i == 1){
