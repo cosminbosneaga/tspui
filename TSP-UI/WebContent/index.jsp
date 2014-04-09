@@ -14,17 +14,15 @@
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="js/jquery-ui.js"></script>
+	<script type="text/javascript" src="js/jquery.cookie.js"></script>
 	<script>
 	
-	function start() {
-		modalBox = document.getElementById("start");
-		modalBox.style.visibility = (modalBox.style.visibility == "visible") ? "hidden" : "visible";
-	}
 	
 	var seconds = 0;
-	function startGame() {
-		document.getElementById("start").style.visibility = 'hidden';
-		setInterval(timer, 1000);
+	var myTimer = 0;
+	function startTimer() {
+
+		myTimer = setInterval(timer, 1000);
 	}
 	
 	function timer() {
@@ -33,59 +31,67 @@
 		timerDiv.innerHTML = "<p>Time:"+seconds+"</p>";
 	}
 	
-	setInterval(timer, 1000);
+	function stopTimer(){
+		clearInterval(myTimer);
+	}
+	
+	function guid() {
+		  function s4() {
+		    return Math.floor((1 + Math.random()) * 0x10000)
+		               .toString(16)
+		               .substring(1);
+		  }
+		  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+		         s4() + '-' + s4() + s4() + s4();
+		}
+	
+	function isUnique() {
+		var user;
+		<%	if(NodeList.getUser()!=null && !NodeList.getUser().isEmpty()){
+				out.println("user=\""+NodeList.getUser() +"\";"); 
+			}
+		%>
+		var cookie = $.cookie("user");
+		return cookie==user;
+	}
+	console.log(isUnique());
+	
 	$(document).ready(function(e) {
-	$( "#newGame" ).on('click', function( event ) {
-		event.preventDefault();
-		var data = {
-				"nodes": $("#nodes").val(),
-				"mutations": $("#mutations").val()
+		var cookie = $.cookie("user");
+		
+		if(cookie)
+		{
+			$("#cookie").val(cookie);
+		}
+		else{
+			var uuid = guid();
+			$.cookie("user",uuid);
+			$("#cookie").val(uuid);
 		}
 		
-		console.log("se trimite");
-	
-		$.ajax({
-			url: '/TSP-UI/Main',
-			type: 'POST',
-			data:  data,
-			dataType: "json",
-			async: false,
-			success: function(response)
-			{
-				console.log("raspuns"+response);	
-			},
-			 error: function(xhr, ajaxOptions, thrownError) 
-			{	
-				console.log("POST Customer Data Error!");
-				console.log(xhr.status);
-				console.log(thrownError);
-			}          
-		});
 		
-		event.preventDefault();
-	});
+		var user;
+		<%	if(NodeList.getUser()!=null && !NodeList.getUser().isEmpty()){
+				out.println("user=\""+NodeList.getUser() +"\";"); 
+			}
+		%>
+		
+		
 	});
 	
 	</script>
 </head>
 <body>
 	
-	<div id="start">
-		<div>
-			<p>You have chosen to start the game with X nodes and Y mutations.</p>
-			<p>Press start to start the game</p>
-			<input type="button" onClick='startGame()' value="Start"/>
-		</div>
-	</div>
-	
 	<div id="header">
 		<h2>Game Name</h2>
-		<form id="game" method="post" action="">
+		<form id="game" method="post" action="Main">
+			<input type="hidden" name="cookie" id="cookie" value="">
 			<label>Nodes: </label>
 			<input type="text" id="nodes" name="nodes">
 			<label>Mutations: </label>
 			<input type="text" id="mutations" name="mutations">
-			<button id="newGame">Start Gam</button>
+			<input type="submit" id="submit" name="submit" value="New Game">
 		</form>
 		
 	</div>
@@ -104,7 +110,44 @@
 			width: 800,
 			height: 800
 		});
-	  
+		
+		var startScreen = new Kinetic.Layer();
+		  
+		var startText = new Kinetic.Text({
+			x: 50,
+			y: 20,
+			width: stage.width()-150,
+			padding: 20,
+			text: 'GAME NAME\n\nWelcome to the GAME NAME. The aim of this game is to find the shortest path that connects all the points. You have up to 20 seconds so don\'t think too much',
+			fontSize: 18,
+			fontFamily: 'Calibri',
+			fill: 'black',
+			allign: 'center'
+		});
+		
+		startScreen.add(startText);
+	  	
+		 var beforeGame = new Kinetic.Layer();
+		  
+		  var startButton = new Kinetic.Rect({
+			x: 50,
+			y: 20,
+			width: 100,
+	        height: 50,
+	        fill: 'green',
+	        stroke: 'black',
+	        strokeWidth: 4
+			});
+			
+			startButton.on('click', function() {
+				beforeGame.clear();
+				stage.add(nodes_layer);
+				stage.add(lines_layer);
+				startTimer();
+			});
+			
+			beforeGame.add(startButton);
+			
 		var nodes_layer = new Kinetic.Layer();
 		var lines_layer = new Kinetic.Layer();
 	  
@@ -114,9 +157,6 @@
 		var endy = 0;
 		<%	out.println("var n="+NodeList.size() +";"); %>
 		
-		if (n!=0){
-			//start();
-		}
 		
 		Array.prototype.contains = function(obj) {
     		var i = this.length;
@@ -166,10 +206,33 @@
 			lines_layer.draw();
 		}
 		
+		function removeLine(startNode,endNode){
+			if( startNode < endNode )
+			{
+				lines["line"+startNode+"-"+endNode].stroke('white');
+			}
+			else
+			{
+				lines["line"+endNode+"-"+startNode].stroke('white');
+			}
+			visited.pop();
+			console.log("clicked "+endNode);
+			lines_layer.draw();
+		}
+		
 		function finished(){
 			if(visited.complete(n)){
 				addLine(visited.last(),1);
+				stopTimer();
 				alert("finished");
+			}
+		}
+		
+		function reverse(node){
+			if( node = visited.last()){
+				startNode = node;
+				endNode = visited[visited.length-2];
+				removeLine(startNode,endNode);
 			}
 		}
 </script>
@@ -222,7 +285,8 @@ for(int i=1;i<=NodeList.size();i++){
 				"	var endNode = "+ i + ";" +
 				"	addLine(startNode,endNode);" +
 				"	finished();" +
-				"}"
+				"}else{" +
+				"reverse();}"
 			);
 		
 	if(i == 1){
@@ -271,8 +335,12 @@ for( int i=1;i<NodeList.size();i++){
 		out.println("</script>");
 %>
 <script defer="defer">
-stage.add(lines_layer);
-stage.add(nodes_layer);
+if(n>0 && isUnique()){
+    // add the layer to the stage
+    stage.add(beforeGame);
+  }else{
+	  stage.add(startScreen);
+	 }
 </script>
 </body>
 </html>
