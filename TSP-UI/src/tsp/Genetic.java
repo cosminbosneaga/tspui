@@ -124,8 +124,10 @@ public class Genetic {
 		Adjacency.createMatrix();
 		// Calculate path using nearest neighbour first method
 		NNF.findPath();
+		System.out.println(Tour.getTour().toString());
 		System.out.println("before:"+Tour.tourDistance(Tour.getTour()));
 		TwoOpt.optimize();
+		System.out.println(Tour.getTour().toString());
 		System.out.println("after:"+Tour.tourDistance(Tour.getTour()));
 		heuristic = Tour.tourDistance(Tour.getTour());
 		

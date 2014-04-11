@@ -10,6 +10,10 @@ public class Tour {
         getTour().add(n);
     }
 	
+	public static Integer getNode(Integer i){
+		return getTour().get(i);
+	}
+	
 	public static boolean exists(Integer n){
 		for(int i = 0; i<size();i++){
     		if(getTour().get(i) == n){
@@ -34,7 +38,7 @@ public class Tour {
     		else{
     			total += Node.edge(NodeList.findNode(tour.get(i)), NodeList.findNode(tour.get(i+1)));
     		}
-    		//System.out.print(tour.get(i)+"->");
+    		System.out.print(tour.get(i)+"->");
     	}
     	//System.out.println("Total: "+total);
     	return total; 

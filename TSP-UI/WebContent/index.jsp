@@ -3,6 +3,7 @@
 <%@ page import="tsp.Genetic" %>
 <%@ page import="tsp.NodeList" %>
 <%@ page import="tsp.Node" %>
+<%@ page import="tsp.Tour" %>
 <% // call number of nodes, mutation size
 //Genetic.evolutionary(5,20); %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -16,8 +17,19 @@
 	<script type="text/javascript" src="js/jquery-ui.js"></script>
 	<script type="text/javascript" src="js/jquery.cookie.js"></script>
 	<script>
-	
-	
+	// visited arrray for visited nodes must start and end with 1.
+	var visited = new Array();
+	<%
+		
+		out.println("var bestTour = new Array();");
+		if(Tour.size()>0){
+			out.println("var bestLength = "+Tour.tourDistance(Tour.getTour())+";");
+			for(int i=0;i<Tour.size();i++){
+				out.println("bestTour.push("+(Tour.getNode(i)+1)+");");
+			}
+		}
+	%>
+	console.log(bestTour);
 	var seconds = 0;
 	var myTimer = 0;
 	function startTimer() {
@@ -184,8 +196,26 @@
 			return false;
 		}
 		
-		// visited arrray for visited nodes must start and end with 1.
-		var visited = new Array();
+		Array.prototype.compare = function (array) {
+		    // if the other array is a falsy value, return
+		    if (!array)
+		        return false;
+
+		    // compare lengths - can save a lot of time
+		    if (this.length != array.length)
+		        return false;
+
+		    for (var i = 0; i<this.length; i++) {
+		        
+		        if (this[i] != array[i] ) {
+		                return false;
+		        }
+		      
+		    }
+		    return true;
+		}
+		
+		
 		// array for used path
 		var path = new Array();
 		var nodes = new Array();
@@ -219,12 +249,41 @@
 			console.log("clicked "+endNode);
 			lines_layer.draw();
 		}
+		var nnn = stage.find('#1');
+		console.log(nnn[0].getAttr('x'));
+		Array.prototype.distance = function(){
+			var x1,y1,x2,y2,total;
+			total = 0;
+			x1 = node1.x();
+			y1 = node1.y();
+			console.log(x1);
+			for(var i=1;i<this.length;i++){
+				var nodeName = "#"+this[i];
+				console.log(nodeName);
+				var node = stage.find(nodeName);
+				x2 = node.x();
+				y2 = node.y();
+				
+				total += sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2));
+				x1=x2;
+				y1=y2;
+			}
+			return total;
+		}
 		
 		function finished(){
 			if(visited.complete(n)){
 				addLine(visited.last(),1);
 				stopTimer();
-				alert("finished");
+				console.log(visited);
+				console.log(bestTour);
+				if( visited.compare(bestTour) ){
+					console.log("correct");
+				}else{
+					console.log("incorrect");
+				}
+				console.log(bestLength);
+				console.log(visited.distance());
 			}
 		}
 		
@@ -250,6 +309,8 @@ for(int i=1;i<=NodeList.size();i++){
 	"node" + i + " = new Kinetic.Circle({\n" +
 	"x: random_X,\n" +
 	"y: random_Y,\n" +
+	"name: '" + i +"',\n" +
+	"id: '" + i + "',\n" +
 	"radius: 10,\n" +
 	"fill: 'cyan',\n" +
 	"stroke: 'black',\n" +
