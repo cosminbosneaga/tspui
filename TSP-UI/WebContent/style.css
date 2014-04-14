@@ -41,3 +41,9 @@ body {
     padding:15px;
     text-align:center;
 }
+
+#loading {
+	position: absolute;
+	top:200px;
+	left:600px;
+}

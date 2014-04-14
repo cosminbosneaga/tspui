@@ -38,7 +38,7 @@ public class Tour {
     		else{
     			total += Node.edge(NodeList.findNode(tour.get(i)), NodeList.findNode(tour.get(i+1)));
     		}
-    		System.out.print(tour.get(i)+"->");
+    		//System.out.print(tour.get(i)+"->");
     	}
     	//System.out.println("Total: "+total);
     	return total; 
