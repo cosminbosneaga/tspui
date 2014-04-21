@@ -5,14 +5,14 @@ import java.util.HashMap;
 
 public class Dynamic {
 
-	static int size = NodeList.size();
+	static int size = Instance.size();
 	private static ArrayList<Integer> subset = new ArrayList<Integer>();
 	private static ArrayList<Integer> set = new ArrayList<Integer>();
 	private static ArrayList<Integer> numbers = new ArrayList<Integer>();
 	
 	public static void findPath(){
 		
-		for(int i=0;i<NodeList.size();i++){
+		for(int i=0;i<Instance.size();i++){
 			set.add(i);
 		}
 		set.remove(0);

@@ -2,10 +2,9 @@ package tsp;
 
 import java.util.ArrayList;
 
-public class NodeList {
+public class Instance {
 	
 	private static ArrayList<Node> nodes = new ArrayList<Node>();
-	private static String user;
 		
 	public static void addNode(Node n) {
         nodes.add(n);
@@ -22,19 +21,14 @@ public class NodeList {
     public static int size(){
         return nodes.size();
     }
-
-	/**
-	 * @return the user
-	 */
-	public static String getUser() {
-		return user;
-	}
-
-	/**
-	 * @param user the user to set
-	 */
-	public static void setUser(String user) {
-		NodeList.user = user;
-	}
+    
+    public static double edge(int node1, int node2){
+    	Node startNode = findNode(node1);
+    	Node endNode = findNode(node2);
+    	double dx = startNode.getX() - endNode.getX();
+    	double dy = startNode.getY() - endNode.getY();
+    	
+    	return Math.sqrt(dx*dx+dy*dy);
+    }
 
 }

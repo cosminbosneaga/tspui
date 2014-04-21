@@ -2,16 +2,17 @@ package tsp;
 
 public class Adjacency {
 	
-	static int size = NodeList.size();
-	static double[][] matrix = new double[size][size];
+	private static final int size = Instance.size(); 
+	public static double[][] matrix = new double[size][size];
 	
 	public static void createMatrix(){
-		
+				
 		for(int i=0; i< size; i++){
 			
 			for(int j=0;j<size;j++){
 				
-				matrix[i][j] = Node.edge(NodeList.findNode(i),NodeList.findNode(j));
+				matrix[i][j] = Instance.edge(i,j);
+				//System.out.println(matrix[i][j]+" ");
 			}
 		}
 			

@@ -113,26 +113,27 @@ public class Genetic {
 	public static double fitness(ArrayList<Double> population){
 		double heuristic=0, optimal =0;
 		
-		NodeList.removeAll();
+		Instance.removeAll();
 		for(int i=0;i<size;i+=2){
 			//System.out.println(population.get(i)+","+population.get(i+1));
 			Node city = new Node(population.get(i), population.get(i+1));
-	        NodeList.addNode(city);
+	        Instance.addNode(city);
 		}
-		
+		Tour heuristicTour = new Tour();
+		Tour exactTour = new Tour();
 		// Create distance matrix
 		Adjacency.createMatrix();
 		// Calculate path using nearest neighbour first method
-		NNF.findPath();
-		System.out.println(Tour.getTour().toString());
-		System.out.println("before:"+Tour.tourDistance(Tour.getTour()));
-		TwoOpt.optimize();
-		System.out.println(Tour.getTour().toString());
-		System.out.println("after:"+Tour.tourDistance(Tour.getTour()));
-		heuristic = Tour.tourDistance(Tour.getTour());
+		NNF.findPath(heuristicTour);
+		System.out.println(heuristicTour.getTour().toString());
+		System.out.println("before:"+heuristicTour.tourTotal());
+		TwoOpt.optimize(heuristicTour);
+		System.out.println(heuristicTour.getTour().toString());
+		System.out.println("after:"+heuristicTour.tourTotal());
+		heuristic = heuristicTour.tourTotal();
 		
 		ArrayList<Integer> set = new ArrayList<Integer>(); //Create an ArrayList
-        for(int i=0;i<NodeList.size();i++){
+        for(int i=0;i<Instance.size();i++){
         	set.add(i);
         }
         set.remove(0);

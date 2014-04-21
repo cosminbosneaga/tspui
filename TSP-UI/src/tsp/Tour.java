@@ -4,57 +4,52 @@ import java.util.ArrayList;
 
 public class Tour {
 	
-	private static ArrayList<Integer> nnTour = new ArrayList<Integer>();
+	private ArrayList<Integer> tour = new ArrayList<Integer>();
 	
-	public static void addNode(Integer n) {
-        getTour().add(n);
+	public ArrayList<Integer> getTour() {
+		return tour;
+	}
+
+	public void setTour(ArrayList<Integer> tour) {
+		this.tour = tour;
+	}
+
+	public void addNode(Integer n) {
+        tour.add(n);
     }
 	
-	public static Integer getNode(Integer i){
-		return getTour().get(i);
+	public Integer getNode(Integer i){
+		return tour.get(i);
 	}
 	
-	public static boolean exists(Integer n){
+	public boolean exists(Integer n){
 		for(int i = 0; i<size();i++){
-    		if(getTour().get(i) == n){
+    		if(tour.get(i) == n){
     			return false;
     		}
     	}
 		return true;
 	}
     
-    public static int size(){
-        return getTour().size();
+    public int size(){
+        return tour.size();
     }
     
-    public static double tourDistance(ArrayList<Integer> tour){
+    public double tourTotal(){
     	
-    	//System.out.print("The tour is: ");
     	double total=0;
-    	for(int i = 0; i<size();i++){
-    		if( i+1 == size() ){
-    			total += Node.edge(NodeList.findNode(tour.get(i)), NodeList.findNode(tour.get(0)));
-    		}
-    		else{
-    			total += Node.edge(NodeList.findNode(tour.get(i)), NodeList.findNode(tour.get(i+1)));
-    		}
-    		//System.out.print(tour.get(i)+"->");
+    	for(int i = 0; i<size()-1;i++){
+    		total += Instance.edge(tour.get(i), tour.get(i+1));
     	}
+    		
     	//System.out.println("Total: "+total);
     	return total; 
     }
-
-	/**
-	 * @return the tour
-	 */
-	public static ArrayList<Integer> getTour() {
-		return nnTour;
+    
+    public void interchange(int i, int j){
+		int temp = tour.get(i);
+		tour.set(i, tour.get(j));
+		tour.set(j, temp);
 	}
 
-	/**
-	 * @param tour the tour to set
-	 */
-	public static void setTour(ArrayList<Integer> tour) {
-		Tour.nnTour = tour;
-	}
 }

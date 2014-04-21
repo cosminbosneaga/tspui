@@ -17,13 +17,13 @@ public class Min {
     public double getMin (){
 
         if (through.isEmpty()){
-            return Node.edge(NodeList.findNode(from), NodeList.findNode(0));
+            return Instance.edge(from, 0);
         }
         ArrayList<Double> distances = new ArrayList<Double>();
         for (Integer node: through){
             ArrayList<Integer> throughCopy = new ArrayList<Integer>(through);
             throughCopy.remove(node);
-            double current = Node.edge(NodeList.findNode(from), NodeList.findNode(node)) + new Min(node, throughCopy).getMin();
+            double current = Instance.edge(from, node) + new Min(node, throughCopy).getMin();
             distances.add(current);
         }
         return Collections.min(distances);

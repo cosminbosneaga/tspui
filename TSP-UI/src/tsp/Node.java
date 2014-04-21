@@ -27,11 +27,4 @@ public class Node {
         return this.y;
     }
     
-    public static double edge(Node n1, Node n2){
-    	double dx = n1.getX() - n2.getX();
-    	double dy = n1.getY() - n2.getY();
-    	
-    	return Math.sqrt(dx*dx+dy*dy);
-    }
-    
 }

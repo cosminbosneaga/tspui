@@ -62,17 +62,17 @@ public class Main extends HttpServlet {
 
 		JSONArray json = new JSONArray();
 
-		if( NodeList.size()>0){
-		for(int i=0;i<NodeList.size();i++){
+		if( Instance.size()>0){
+		for(int i=0;i<Instance.size();i++){
 
 				try {
-					json.put(NodeList.findNode(i).getX());
+					json.put(Instance.findNode(i).getX());
 				} catch (JSONException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				try {
-					json.put(NodeList.findNode(i).getY());
+					json.put(Instance.findNode(i).getY());
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
