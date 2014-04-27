@@ -1,12 +1,12 @@
 package tsp;
 
 // nearest neighbour first
-public class NNF {
+public class NearestNeighbour {
 	
-	static int size = Instance.size();
 	
-	public static void findPath(Tour heuristic){
+	public void findTour(Tour heuristic,  Instance tsp){
 		
+		int size = tsp.size();
 		// add first node		
 		heuristic.addNode(0);
 		
@@ -17,7 +17,7 @@ public class NNF {
 			
 			min = 9999;
 			for( int j = 0 ; j < size ; j++ ){
-				distance = Instance.edge(i, j);
+				distance = tsp.edge(i, j);
 				
 				if( distance != 0 && distance < min && heuristic.exists(j)){
 					min = distance;
@@ -25,7 +25,7 @@ public class NNF {
 				}
 			}
 			
-			if( heuristic.exists(nextNode) && heuristic.size() != Instance.size()){
+			if( heuristic.exists(nextNode) && heuristic.size() != tsp.size()){
 				heuristic.addNode(nextNode);
 			}
 			

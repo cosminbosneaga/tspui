@@ -35,11 +35,11 @@ public class Tour {
         return tour.size();
     }
     
-    public double tourTotal(){
+    public double tourTotal(Instance tsp){
     	
     	double total=0;
     	for(int i = 0; i<size()-1;i++){
-    		total += Instance.edge(tour.get(i), tour.get(i+1));
+    		total += tsp.edge(tour.get(i), tour.get(i+1));
     	}
     		
     	//System.out.println("Total: "+total);

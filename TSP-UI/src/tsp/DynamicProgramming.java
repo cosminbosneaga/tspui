@@ -3,26 +3,28 @@ package tsp;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Dynamic {
+public class DynamicProgramming {
 	
-	public static ArrayList<Double> weights = new ArrayList<Double>();
-	public static int numberNodes = Instance.size();
+	private ArrayList<Double> weights = new ArrayList<Double>();
+	private int numberNodes;
 	
-	static void createw(){
+	private void createw(int numberNodes, DistanceMatrix distances){
 		for(int i=0; i< numberNodes; i++){
 			
 			for(int j=0;j<numberNodes;j++){
-				
-				weights.add( Adjacency.matrix[i][j] );
+				double[][] matrix = distances.getMatrix();
+				weights.add( matrix[i][j] );
 				//System.out.println(matrix[i][j]+" ");
 			}
 		}
 	}
 	
 	//numberNode size
-	static double solveInstanceDP() {
+	public double findTour(Instance tsp, DistanceMatrix distances) {
 		
-		createw();
+		numberNodes = tsp.size();
+		
+		createw(numberNodes, distances);
 		ArrayList<Double> solutions = new ArrayList<Double>(); 
 		ArrayList<Integer> set = new ArrayList<Integer>();
 		int size, i;
@@ -85,7 +87,7 @@ public class Dynamic {
 	/* This is the function that computes L(t, X). The implementation is actually recursive. */
 	/* We store all results in L[][] and look up if the result is already there first. */
 	/* In comparison to a proper implementation this wastes a factor or n/2 in space. */
-	static double computeLength(int t, ArrayList<Integer> set, ArrayList<Double> solutions) {
+	private double computeLength(int t, ArrayList<Integer> set, ArrayList<Double> solutions) {
 		int i, emptySet, ind;
 		double length;
 	    double bestLength;
@@ -131,7 +133,7 @@ public class Dynamic {
 	    return bestLength;
 	}
 
-	static int resultIndex(int t, ArrayList<Integer> set) {
+	private int resultIndex(int t, ArrayList<Integer> set) {
 		int setValue, factor, i;
 
 		for ( i=0, setValue=0, factor=1; i<numberNodes; i++ ) {

@@ -4,25 +4,25 @@ import java.util.ArrayList;
 
 public class Instance {
 	
-	private static ArrayList<Node> nodes = new ArrayList<Node>();
+	private ArrayList<Node> nodes = new ArrayList<Node>();
 		
-	public static void addNode(Node n) {
+	public void addNode(Node n) {
         nodes.add(n);
     }
     
-    public static Node findNode(int index){
+    public Node findNode(int index){
         return nodes.get(index);
     }
     
-    public static void removeAll(){
+    public void removeAll(){
     	nodes = new ArrayList<Node>();
     }
     
-    public static int size(){
+    public int size(){
         return nodes.size();
     }
     
-    public static double edge(int node1, int node2){
+    public double edge(int node1, int node2){
     	Node startNode = findNode(node1);
     	Node endNode = findNode(node2);
     	double dx = startNode.getX() - endNode.getX();

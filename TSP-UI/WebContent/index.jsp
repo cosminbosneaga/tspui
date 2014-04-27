@@ -34,7 +34,7 @@
 	    				createLoadingScreen();
 	    				
 	    			},
-	    			url: '/TSP-UI/Main',
+	    			url: '/TSP-UI/Game',
 	    			type: 'POST',
 	    			data:  data,
 	    			dataType: "json",
@@ -46,9 +46,13 @@
 	    				loadingScreen.remove();
 	    				nodes.remove();
 	    				lines.remove();
-	    				addNodes( response  );
+	    				addNodes( response.instance  );
+	    				createHeuristic( response.heuristic );
 	    				stage.add(beforeGame);
-	    				console.log("raspuns"+response);	
+	    				$.each(response, function(i, val){
+	    					console.log(val);
+	    				});
+	    				console.log("raspuns"+response.instance);	
 	    			},
 	    			error: function(xhr, ajaxOptions, thrownError) 
 	    			{	
@@ -187,13 +191,21 @@
     <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.2.min.js"></script>
     <script defer="defer">
     
-	var visited = Array();
-	visited.push(1);
-	
+		var visited = Array();
+		var heuristic = Array();
+		var optimal = Array();
+		visited.push(1);
+		
+		function createHeuristic(heuristicTour){
+			for(var i=0;i<heuristicTour.length;i++){
+				heuristic.push(heuristicTour[i]+1);
+			}
+		}
+		
 		var stage = new Kinetic.Stage({
-				container: 'container',
-				width: 800,
-				height: 800
+			container: 'container',
+			width: 800,
+			height: 800
 		});
 		
 		var yellow = new Image();
@@ -285,45 +297,53 @@
 	  	var n;
 	  	
 		function addNodes(positions){
-			 n = positions.length;
-			 for(var i = 0; i < n; i+=2) {
-					var nn = i/2+1;
-					var node = new Kinetic.Circle({
-						x: positions[i],
-						y: positions[i+1],
-						radius: 10,
-						fill: 'yellow',
-						strokeWidth: 3,
-						stroke: 'black',
-						name: 'node',
-						id: nn
-					});
+			n = positions.length;
+			for(var i = 0; i < n; i+=2) {
+				var nn = i/2+1;
+				var node = new Kinetic.Circle({
+					x: positions[i],
+					y: positions[i+1],
+					radius: 10,
+					fill: 'yellow',
+					strokeWidth: 3,
+					stroke: 'black',
+					name: 'node',
+					id: nn
+				});
 					
-					node.on('mouseover touchstart', function() {
-						this.fillPatternImage(images.red);
+				node.on('mouseover touchstart', function() {
+					//this.fillPatternImage(images.red);
+					this.fill("red");
+					nodes.draw();
+				});
+					
+				node.on('mouseout touchend', function() {
+					if( !visited.contains(this.id()) ){
+						//this.fillPatternImage(images.yellow);
+						this.fill("yellow");
 						nodes.draw();
-					});
+					}
+				});
 					
-					node.on('mouseout touchend', function() {
-						if( !visited.contains(this.id()) ){
-							this.fillPatternImage(images.yellow);
-							nodes.draw();
+				node.on('click', function() {
+					if(visited.contains(this.id()) === false ) {
+						addLine(this.id());
+						finished(n);
+					}else{
+						if( this.id() == visited.last() && this.id() != 1 ) {
+							removeLine();
 						}
-					});
-					
-					node.on('click', function() {
-						if(visited.contains(this.id()) === false ) {
-							addLine(this.id());
-							finished(n);
-						}else{
-							if( this.id() == visited.last() && this.id() != 1 ) {
-								removeLine();
-							}
-						}
-					});
-					
-					nodes.add(node);
-			  }
+					}
+				});
+				
+				// Display first node as already in tour
+				if( i == 0 ){
+					node.fill("red"); 
+				}
+				
+				nodes.add(node);
+				
+			}
 		}
 	
 		function addLine(node){
@@ -363,11 +383,16 @@
 		function finished(n){
 			if(visited.complete(n/2)){
 				addLine(1);
+				console.log(visited);
+				console.log(heuristic);
+				if(visited.compare(heuristic) || visited.reverse().compare(heuristic)){
+					console.log("Congratulations");
+				} else {
+					console.log("Try again");
+				}
 				stopTimer();
 			}
 		}
-	
-		
 		
 		if( n>0 ){
 			// add the layer to the stage

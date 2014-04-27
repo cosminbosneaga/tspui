@@ -1,23 +1,26 @@
 package tsp;
 
-public class Adjacency {
+public class DistanceMatrix {
 	
-	private static final int size = Instance.size(); 
-	public static double[][] matrix = new double[size][size];
 	
-	public static void createMatrix(){
+	public double[][] matrix;
+	
+	public void createMatrix(Instance tsp){
 				
+		int size = tsp.size();
+		matrix = new double[size][size];
+		
 		for(int i=0; i< size; i++){
 			
 			for(int j=0;j<size;j++){
 				
-				matrix[i][j] = Instance.edge(i,j);
+				matrix[i][j] = tsp.edge(i,j);
 				//System.out.println(matrix[i][j]+" ");
 			}
 		}
 			
 	}
-	
+	/*
 	public static void printMatrix(){
 		for(int i=0; i< size; i++){
 			System.out.println("\n");
@@ -28,6 +31,14 @@ public class Adjacency {
 			}
 		}
 			
+	}*/
+
+	public double[][] getMatrix() {
+		return matrix;
+	}
+
+	public void setMatrix(double[][] matrix) {
+		this.matrix = matrix;
 	}
 	
 	

@@ -4,16 +4,50 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class Genetic {
+public class Evolutionary {
 	
-	private static double sigma;
-	private static DecimalFormat df = new DecimalFormat("#.##");
-	private static int success, step, size;
-	private static ArrayList<Double> newPopulation = new ArrayList<Double>();
-	private static ArrayList<Double> currentPopulation = new ArrayList<Double>();
-	private static ArrayList<Double> deviation = new ArrayList<Double>();
+	private double sigma;
+	private DecimalFormat df = new DecimalFormat("#.##");
+	private int success, step, size;
+	private ArrayList<Double> newPopulation = new ArrayList<Double>();
+	private ArrayList<Double> currentPopulation = new ArrayList<Double>();
+	//private ArrayList<Double> deviation = new ArrayList<Double>();
+	private Instance instance;
+	private Tour heuristicTour;
 	
-	public static void printArr(ArrayList<Double> arr){
+	public Instance getInstance() {
+		return instance;
+	}
+
+	public void setInstance(Instance instance) {
+		this.instance = instance;
+	}
+
+	public Tour getHeuristicTour() {
+		return heuristicTour;
+	}
+
+	public void setHeuristicTour(Tour heuristicTour) {
+		this.heuristicTour = heuristicTour;
+	}
+
+	private Tour optimalTour;
+	
+	/**
+	 * @return the optimalTour
+	 */
+	public Tour getOptimalTour() {
+		return optimalTour;
+	}
+
+	/**
+	 * @param optimalTour the optimalTour to set
+	 */
+	public void setOptimalTour(Tour optimalTour) {
+		this.optimalTour = optimalTour;
+	}
+
+	private void printArr(ArrayList<Double> arr){
 		System.out.print("[");
 		for(int i=0;i<arr.size();i++)
 			if(i!=arr.size()-1){
@@ -24,15 +58,15 @@ public class Genetic {
 		System.out.print("]\n");
 	}
 
-	public static void evolutionary(int size, int mutations){
+	public void evolveInstance(int size, int mutations){
 		
 		// step 1, generate random population
-		Genetic.generateCurrentPopulation(size,0,500);
+		generateCurrentPopulation(size,0,500);
 		
 		initialize();
 		do{
 			// step 2+3
-			Genetic.generateNewPopulation();
+			generateNewPopulation();
 			
 			// step 4
 			successful();
@@ -46,14 +80,14 @@ public class Genetic {
 		
 	}
 	
-	public static void initialize(){
+	private void initialize(){
 		sigma = 1;
 		step = 0;
 		success = 0;
 		size = currentPopulation.size();
 	}
 	
-	public static void generateCurrentPopulation(int n,int min, int max){
+	private void generateCurrentPopulation(int n,int min, int max){
 		currentPopulation = new ArrayList<Double>();
 		for(int i=0;i<n*2;i++){
 			Random rnd = new Random();
@@ -64,14 +98,14 @@ public class Genetic {
 		printArr(currentPopulation);
 	}
 	
-	public static void generateDeviations(int n){
+	/*private void generateDeviations(int n){
 		for(int i=0;i<size;i++){
 			Random rnd = new Random();
 			deviation.add(rnd.nextGaussian());
 		}
-	}
+	}*/
 	
-	public static void generateNewPopulation(){
+	private void generateNewPopulation(){
 		for(int i=0;i<size;i++){
 			Random rnd = new Random();
 			double deviation = rnd.nextGaussian();
@@ -83,7 +117,7 @@ public class Genetic {
 		printArr(newPopulation);
 	}
 	
-	public static void successful(){
+	private void successful(){
 		if( fitness(currentPopulation) <= fitness(newPopulation) ){
 			//copy newPopulation as current
 			currentPopulation = new ArrayList<Double>(newPopulation);
@@ -95,7 +129,7 @@ public class Genetic {
 		}
 	}
 	
-	public static void adaptStepSize(){
+	private void adaptStepSize(){
 		if( step == size ){
 			step = 0;
 			if( (double)success/size > 0.2 ){
@@ -110,45 +144,55 @@ public class Genetic {
 		}
 	}
 	
-	public static double fitness(ArrayList<Double> population){
-		double heuristic=0, optimal =0;
+	private double fitness(ArrayList<Double> population){
+		double heuristicLength=0, optimalLength =0;
 		
-		Instance.removeAll();
+		instance = new Instance();
 		for(int i=0;i<size;i+=2){
 			//System.out.println(population.get(i)+","+population.get(i+1));
 			Node city = new Node(population.get(i), population.get(i+1));
-	        Instance.addNode(city);
+	        instance.addNode(city);
 		}
-		Tour heuristicTour = new Tour();
-		Tour exactTour = new Tour();
+		
+		heuristicTour = new Tour();
+		setOptimalTour(new Tour());
+		
 		// Create distance matrix
-		Adjacency.createMatrix();
+		DistanceMatrix distances = new DistanceMatrix();
+		distances.createMatrix(instance);
+		
 		// Calculate path using nearest neighbour first method
-		NNF.findPath(heuristicTour);
+		NearestNeighbour heuristic = new NearestNeighbour();
+		heuristic.findTour(heuristicTour,instance);
 		System.out.println(heuristicTour.getTour().toString());
-		System.out.println("before:"+heuristicTour.tourTotal());
-		TwoOpt.optimize(heuristicTour);
+		System.out.println("before:"+heuristicTour.tourTotal(instance));
+		LocalSearch ls = new LocalSearch();
+		ls.twoOpt(heuristicTour,instance);
+		
 		System.out.println(heuristicTour.getTour().toString());
-		System.out.println("after:"+heuristicTour.tourTotal());
-		heuristic = heuristicTour.tourTotal();
+		System.out.println("after:"+heuristicTour.tourTotal(instance));
+		heuristicLength = heuristicTour.tourTotal(instance);
 		
 		ArrayList<Integer> set = new ArrayList<Integer>(); //Create an ArrayList
-        for(int i=0;i<Instance.size();i++){
+        for(int i=0;i<instance.size();i++){
         	set.add(i);
         }
         set.remove(0);
 		//optimal = new Min(1, set).getMin();
-        optimal = Dynamic.solveInstanceDP();
+        
+        DynamicProgramming optimal = new DynamicProgramming();
+        
+        optimalLength = optimal.findTour(instance,distances);
 		//calculate heuristic
 		//calculate optimal
 		System.out.println("=========FITNESS==========");
-		System.out.println("Heuristic:"+df.format(heuristic)+
-				"\nMinimum:"+df.format(optimal)+
-				"\nDifference:"+df.format((heuristic-optimal)));
-		return heuristic-optimal;
+		System.out.println("Heuristic:"+df.format(heuristicLength)+
+				"\nMinimum:"+df.format(optimalLength)+
+				"\nDifference:"+df.format((heuristicLength-optimalLength)));
+		return heuristicLength-optimalLength;
 	}
 	
-	public static void validateCoordinates(){
+	private void validateCoordinates(){
 		// Fix negative coordinates
 		// Assume all coordinates are valid
 		boolean valid = true;
