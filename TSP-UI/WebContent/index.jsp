@@ -24,7 +24,7 @@
 	    				"mutations": $("#mutations").val()
 	    		}
 
-	    		console.log("se trimite");
+	    		console.log("sendig data");
 	    		
 
 	    		$.ajax({

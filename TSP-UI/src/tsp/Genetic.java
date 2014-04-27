@@ -137,7 +137,8 @@ public class Genetic {
         	set.add(i);
         }
         set.remove(0);
-		optimal = new Min(1, set).getMin();
+		//optimal = new Min(1, set).getMin();
+        optimal = Dynamic.solveInstanceDP();
 		//calculate heuristic
 		//calculate optimal
 		System.out.println("=========FITNESS==========");
