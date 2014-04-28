@@ -1,7 +1,11 @@
 package tsp;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Random;
 
 public class Evolutionary {
@@ -14,7 +18,9 @@ public class Evolutionary {
 	//private ArrayList<Double> deviation = new ArrayList<Double>();
 	private Instance instance;
 	private Tour heuristicTour;
-	
+	BufferedWriter file;
+	BufferedWriter fit;
+		
 	public Instance getInstance() {
 		return instance;
 	}
@@ -47,24 +53,34 @@ public class Evolutionary {
 		this.optimalTour = optimalTour;
 	}
 
-	private void printArr(ArrayList<Double> arr){
+	private void printArr(ArrayList<Double> arr) throws IOException{
+		file.write("[" );
 		System.out.print("[");
 		for(int i=0;i<arr.size();i++)
 			if(i!=arr.size()-1){
+				file.write(df.format(arr.get(i))+", ");
 				System.out.print(df.format(arr.get(i))+", ");
 			}else{
+				file.write(df.format(arr.get(i)));
 				System.out.print(df.format(arr.get(i)));
 			}
+		file.write("]" + System.getProperty( "line.separator") );
 		System.out.print("]\n");
 	}
 
-	public void evolveInstance(int size, int mutations){
+	public void evolveInstance(int size, int mutations) throws IOException{
+		
+		fit = new BufferedWriter(new FileWriter("C:\\fitness.csv"));
+		file = new BufferedWriter(new FileWriter("C:\\example.txt"));
+		final long startTime = System.nanoTime();
+		
 		
 		// step 1, generate random population
 		generateCurrentPopulation(size,0,500);
 		
 		initialize();
 		do{
+			file.write(">>>>>>>>Step " + mutations + "<<<<<<<<<" + System.getProperty( "line.separator") );
 			// step 2+3
 			generateNewPopulation();
 			
@@ -77,7 +93,12 @@ public class Evolutionary {
 			mutations--;
 		}while(mutations>0);
 		
-		
+		file.flush();
+		file.close();
+		fit.flush();
+		fit.close();
+		final long duration = System.nanoTime() - startTime;
+		System.out.println(duration + " " + duration/1000000000.0);
 	}
 	
 	private void initialize(){
@@ -87,13 +108,14 @@ public class Evolutionary {
 		size = currentPopulation.size();
 	}
 	
-	private void generateCurrentPopulation(int n,int min, int max){
+	private void generateCurrentPopulation(int n,int min, int max) throws IOException{
 		currentPopulation = new ArrayList<Double>();
 		for(int i=0;i<n*2;i++){
 			Random rnd = new Random();
 			double var = min + (max-min)*rnd.nextDouble();
 			currentPopulation.add(var);
 		}
+		file.write("Generated:");
 		System.out.println("Generated:");
 		printArr(currentPopulation);
 	}
@@ -105,7 +127,7 @@ public class Evolutionary {
 		}
 	}*/
 	
-	private void generateNewPopulation(){
+	private void generateNewPopulation() throws IOException{
 		for(int i=0;i<size;i++){
 			Random rnd = new Random();
 			double deviation = rnd.nextGaussian();
@@ -113,38 +135,49 @@ public class Evolutionary {
 		}
 		step++;
 		validateCoordinates();
+		file.write("Deviated:");
 		System.out.println("Deviated:");
 		printArr(newPopulation);
 	}
 	
-	private void successful(){
-		if( fitness(currentPopulation) <= fitness(newPopulation) ){
+	private void successful() throws IOException{
+		file.write("--Current Fitness--"  + System.getProperty( "line.separator") );
+		double currentFitness = fitness(currentPopulation);
+		file.write("--New Fitness--" + System.getProperty( "line.separator") );
+		double newFitness = fitness(newPopulation);
+		
+		if( currentFitness <= newFitness ){
 			//copy newPopulation as current
 			currentPopulation = new ArrayList<Double>(newPopulation);
 			newPopulation = new ArrayList<Double>();
+			file.write("Fitness of new population is better!" + System.getProperty( "line.separator") );
 			System.out.println("Fitness of new population is better!");
 			success++;
+			fit.append(df.format(newFitness));
+			fit.append( System.getProperty( "line.separator") );	
 		}else{
 			newPopulation = new ArrayList<Double>();
 		}
 	}
 	
-	private void adaptStepSize(){
+	private void adaptStepSize() throws IOException{
 		if( step == size ){
 			step = 0;
 			if( (double)success/size > 0.2 ){
 				sigma*=2;
+				file.write("Step size doubled!" + System.getProperty( "line.separator") );
 				System.out.println("Step size doubled!");
 			}
 			else{
 				sigma/=2;
+				file.write("Step size halved!" + System.getProperty( "line.separator") );
 				System.out.println("Step size halved!");
 			}
 			success = 0;
 		}
 	}
 	
-	private double fitness(ArrayList<Double> population){
+	private double fitness(ArrayList<Double> population) throws IOException{
 		double heuristicLength=0, optimalLength =0;
 		
 		instance = new Instance();
@@ -164,13 +197,20 @@ public class Evolutionary {
 		// Calculate path using nearest neighbour first method
 		NearestNeighbour heuristic = new NearestNeighbour();
 		heuristic.findTour(heuristicTour,instance);
+		//file.write("NN:" + heuristicTour.getTour().toString() + System.getProperty( "line.separator") );
 		System.out.println(heuristicTour.getTour().toString());
-		System.out.println("before:"+heuristicTour.tourTotal(instance));
+		file.write("NN:"+df.format(heuristicTour.tourTotal(instance)) + System.getProperty( "line.separator") );
+		System.out.println("NN:"+heuristicTour.tourTotal(instance));
 		LocalSearch ls = new LocalSearch();
 		ls.twoOpt(heuristicTour,instance);
 		
+		
+		file.write("NN:" + heuristicTour.getTour().toString() + System.getProperty( "line.separator") );
+		
 		System.out.println(heuristicTour.getTour().toString());
-		System.out.println("after:"+heuristicTour.tourTotal(instance));
+		file.write("2Opt:" + df.format(heuristicTour.tourTotal(instance)) + System.getProperty( "line.separator") );
+		file.write("2Opt:" + heuristicTour.getTour().toString() + System.getProperty( "line.separator") );
+		System.out.println("2Opt:"+heuristicTour.tourTotal(instance));
 		heuristicLength = heuristicTour.tourTotal(instance);
 		
 		ArrayList<Integer> set = new ArrayList<Integer>(); //Create an ArrayList
@@ -182,17 +222,26 @@ public class Evolutionary {
         
         DynamicProgramming optimal = new DynamicProgramming();
         
-        optimalLength = optimal.findTour(instance,distances);
+        
+        optimal.findTour(instance,distances,optimalTour);
+        optimalLength = optimalTour.tourTotal(instance); 
+        		
+        file.write("Optimal:" + df.format(optimalLength) + System.getProperty( "line.separator") );
+        file.write("Optimal:" + optimalTour.getTour().toString() + System.getProperty( "line.separator") );
+        System.out.println(optimalTour.getTour().toString());
 		//calculate heuristic
 		//calculate optimal
 		System.out.println("=========FITNESS==========");
+		file.write("Heuristic:"+df.format(heuristicLength) + System.getProperty( "line.separator") +
+				"Minimum:"+df.format(optimalLength) + System.getProperty( "line.separator") +
+				"Difference:"+df.format((heuristicLength-optimalLength)) + System.getProperty( "line.separator") );
 		System.out.println("Heuristic:"+df.format(heuristicLength)+
 				"\nMinimum:"+df.format(optimalLength)+
 				"\nDifference:"+df.format((heuristicLength-optimalLength)));
 		return heuristicLength-optimalLength;
 	}
 	
-	private void validateCoordinates(){
+	private void validateCoordinates() throws IOException{
 		// Fix negative coordinates
 		// Assume all coordinates are valid
 		boolean valid = true;
@@ -216,6 +265,7 @@ public class Evolutionary {
 					newPopulation.set(i,newPopulation.get(i)-miny);
 				}
 			}
+			file.write("Fixed negative coords!" + System.getProperty( "line.separator") );
 			System.out.println("Fixed negative coords!");
 		}
 		
@@ -240,6 +290,7 @@ public class Evolutionary {
 					newPopulation.set(i, (newPopulation.get(i)*(double)(500/maxy)));
 				}
 			}
+			file.write("Repositioned!" + System.getProperty( "line.separator") );
 			System.out.println("Repositioned!");
 		}
 		

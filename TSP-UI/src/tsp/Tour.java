@@ -1,10 +1,19 @@
 package tsp;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Tour {
 	
 	private ArrayList<Integer> tour = new ArrayList<Integer>();
+	
+	public Tour(){
+		
+	}
+	
+	public Tour(ArrayList<Integer> newTour){
+		this.tour = new ArrayList<Integer>(newTour);
+	}
 	
 	public ArrayList<Integer> getTour() {
 		return tour;
@@ -47,9 +56,20 @@ public class Tour {
     }
     
     public void interchange(int i, int j){
+    
+    	ArrayList<Integer> first = new ArrayList<Integer>(tour.subList(0, i));
+    	ArrayList<Integer> middle = new ArrayList<Integer>(tour.subList(i, j+1));
+    	ArrayList<Integer> end = new ArrayList<Integer>(tour.subList(j+1, tour.size()));
+    	Collections.reverse(middle);
+    	tour = new ArrayList<Integer>();
+    	tour.addAll(first);System.out.println("first" + first.toString());
+    	tour.addAll(middle);System.out.println("mid" + middle.toString());
+    	tour.addAll(end);System.out.println("end" + end.toString());
+    	
+    	/*
 		int temp = tour.get(i);
 		tour.set(i, tour.get(j));
-		tour.set(j, temp);
+		tour.set(j, temp);*/
 	}
 
 }

@@ -65,9 +65,11 @@ public class GameCreator extends HttpServlet {
 
 		JSONArray positionsJson = new JSONArray();
 		JSONArray heuristicJson = new JSONArray();
+		JSONArray optimalJson = new JSONArray();
 		try {
 			positionsJson = generatePositionsJson(evo.getInstance());
 			heuristicJson = generateHeuristicJson(evo.getHeuristicTour());
+			optimalJson = generateOptimalJson(evo.getOptimalTour());
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -75,6 +77,7 @@ public class GameCreator extends HttpServlet {
 		try {
 			jsonResponse.put("instance", positionsJson);
 			jsonResponse.put("heuristic", heuristicJson);
+			jsonResponse.put("optimal", optimalJson);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -84,6 +87,18 @@ public class GameCreator extends HttpServlet {
 		response.getWriter().write(jsonResponse.toString() );
 	}
 	
+	private JSONArray generateOptimalJson(Tour optimalTour) {
+		JSONArray json = new JSONArray();
+		if( optimalTour.size()>0){
+			for(int i=0;i<optimalTour.size();i++){
+				json.put(optimalTour.getNode(i));
+			}
+		} else {
+			return null;
+		}
+		return json;
+	}
+
 	private JSONArray generateHeuristicJson(Tour heuristicTour){
 		JSONArray json = new JSONArray();
 		if( heuristicTour.size()>0){

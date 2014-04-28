@@ -31,6 +31,15 @@
 	    			beforeSend: function() {
 	    				console.log("before");
 	    				startScreen.remove();
+	    				
+	    				nodes.destroyChildren();
+	    				lines.destroyChildren();
+	    				solution.destroyChildren();
+	    				
+	    				nodes.remove();
+	    				lines.remove();
+	    				solution.remove();
+	    				
 	    				createLoadingScreen();
 	    				
 	    			},
@@ -41,18 +50,19 @@
 	    			async: true,
 	    			success: function(response)
 	    			{
-	    				nodes.destroyChildren();
-	    				lines.destroyChildren();
+	    				heuristic.clear();
+	    				optimal.clear();
+	    				
 	    				loadingScreen.remove();
-	    				nodes.remove();
-	    				lines.remove();
 	    				addNodes( response.instance  );
-	    				createHeuristic( response.heuristic );
+	    				createHeuristicTour(response.heuristic);
+	    				createOptimalTour(response.optimal);
+	    				
 	    				stage.add(beforeGame);
-	    				$.each(response, function(i, val){
+	    				/*$.each(response, function(i, val){
 	    					console.log(val);
-	    				});
-	    				console.log("raspuns"+response.instance);	
+	    				});*/
+	    				//console.log("raspuns"+response.instance);	
 	    			},
 	    			error: function(xhr, ajaxOptions, thrownError) 
 	    			{	
@@ -114,6 +124,12 @@
 		      
 		    }
 		    return true;
+		}
+		
+		Array.prototype.clear = function(){
+			while(this.length > 0 ){
+				this.pop();
+			}
 		}
 		
 		Array.prototype.distance = function(){
@@ -192,20 +208,27 @@
     <script defer="defer">
     
 		var visited = Array();
+		var visitedSolution = Array();
 		var heuristic = Array();
 		var optimal = Array();
-		visited.push(1);
 		
-		function createHeuristic(heuristicTour){
+		function createHeuristicTour(heuristicTour){
 			for(var i=0;i<heuristicTour.length;i++){
 				heuristic.push(heuristicTour[i]+1);
 			}
 		}
 		
+		function createOptimalTour(optimalTour){
+			for(var i=0;i<optimalTour.length;i++){
+				optimal.push(optimalTour[i]+1);
+			}
+		}
+		
+		
 		var stage = new Kinetic.Stage({
 			container: 'container',
-			width: 800,
-			height: 800
+			width: 600,
+			height: 600
 		});
 		
 		var yellow = new Image();
@@ -238,24 +261,7 @@
 		var loadingScreen = new Kinetic.Layer();
 		var createLoadingScreen = function() {
 		
-			var imageObj = new Image();
-	    	imageObj.onload = function() {
-	     		var loading = new Kinetic.Image({
-	     	  		x: 100,
-	          		y: 50,
-	          		image: imageObj,
-	          		width: 66,
-	          		height: 66
-	    		});
-	        
-	        	loadingScreen.add(loading);
-	        	stage.add(loadingScreen);
-	    	};
-	    	
-	    	imageObj.src = '/TSP-UI/images/loader.png';
-		
-		
-	    var loadingText = new Kinetic.Text({
+		var loadingText = new Kinetic.Text({
 			x: 100,
 			y: 100,
 			width: stage.width()-150,
@@ -285,8 +291,13 @@
 			
 		startButton.on('click', function() {
 			beforeGame.clear();
-			stage.add(nodes);
+			visited.clear();
+			visited.push(1);
+			
+			stage.add(solution);
 			stage.add(lines);
+			stage.add(nodes);
+			
 			startTimer();
 		});
 			
@@ -294,6 +305,7 @@
 			
 		var nodes = new Kinetic.Layer();
 		var lines = new Kinetic.Layer();
+		var solution = new Kinetic.Layer();
 	  	var n;
 	  	
 		function addNodes(positions){
@@ -327,11 +339,11 @@
 					
 				node.on('click', function() {
 					if(visited.contains(this.id()) === false ) {
-						addLine(this.id());
+						addLine(this.id(),"black",3,"user",lines,visited);
 						finished(n);
 					}else{
 						if( this.id() == visited.last() && this.id() != 1 ) {
-							removeLine();
+							removeLine("user");
 						}
 					}
 				});
@@ -346,10 +358,10 @@
 			}
 		}
 	
-		function addLine(node){
+		function addLine(node, colour, size, source, layer, visiteda){
 			(function () {
 				//var nodes = stage.get('.node');
-				var startNode = stage.get('#'+[visited.last()])[0];
+				var startNode = stage.get('#'+[visiteda.last()])[0];
 				var endNode = stage.get('#'+[node])[0];
 				var startX = startNode.x();
 				var startY = startNode.y();
@@ -357,22 +369,30 @@
 				var endY = endNode.y();
 				var line = new Kinetic.Line({
 					points: [startX, startY, endX, endY],
-					stroke: 'black',
-					strokeWidth: 5,
+					stroke: colour,
+					strokeWidth: size,
 					lineCap: 'round',
 					lineJoin: 'round',
-					id: 'line'+startNode.id()+'_'+endNode.id()
+					id: source+startNode.id()+'_'+endNode.id()
 				});
-				lines.add(line);
+				layer.add(line);
 			}());
-			visited.push(node);
-			lines.draw();
+			visiteda.push(node);
+			layer.draw();
 		}
 		
-		function removeLine(node){
+		function drawSolution(optimal){
+			visitedSolution.push(optimal[0]);
+			for(var i=1;i<optimal.length;i++){
+				
+				addLine(optimal[i],"green",8,"optimal",solution,visitedSolution);
+			}
+		}
+		
+		function removeLine(source){
 			
 			(function () {
-				var lineID = '#line'+visited.beforeLast()+'_'+visited.last();
+				var lineID = '#'+source+visited.beforeLast()+'_'+visited.last();
 				var line = stage.get(lineID)[0];
 				line.remove();
 			}());
@@ -382,14 +402,20 @@
 		
 		function finished(n){
 			if(visited.complete(n/2)){
-				addLine(1);
+				addLine(1,"black",3,"user",lines,visited);
 				console.log(visited);
 				console.log(heuristic);
-				if(visited.compare(heuristic) || visited.reverse().compare(heuristic)){
-					console.log("Congratulations");
-				} else {
-					console.log("Try again");
-				}
+				console.log(optimal);
+				console.log(visitedSolution);
+				drawSolution(heuristic);
+				if(visited.compare(optimal) || visited.reverse().compare(optimal)){
+					console.log("Congratulations optimal");
+				} else 
+					if(visited.compare(heuristic) || visited.reverse().compare(heuristic)){
+						console.log("Congratulations heuristic");
+					} else {
+						console.log("Try again");
+					}
 				stopTimer();
 			}
 		}

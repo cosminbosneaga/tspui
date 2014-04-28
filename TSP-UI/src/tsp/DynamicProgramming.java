@@ -8,7 +8,7 @@ public class DynamicProgramming {
 	private ArrayList<Double> weights = new ArrayList<Double>();
 	private int numberNodes;
 	
-	private void createw(int numberNodes, DistanceMatrix distances){
+	private void createWeights(int numberNodes, DistanceMatrix distances){
 		for(int i=0; i< numberNodes; i++){
 			
 			for(int j=0;j<numberNodes;j++){
@@ -20,11 +20,11 @@ public class DynamicProgramming {
 	}
 	
 	//numberNode size
-	public double findTour(Instance tsp, DistanceMatrix distances) {
+	public void findTour(Instance tsp, DistanceMatrix distances, Tour optimal) {
 		
 		numberNodes = tsp.size();
 		
-		createw(numberNodes, distances);
+		createWeights(numberNodes, distances);
 		ArrayList<Double> solutions = new ArrayList<Double>(); 
 		ArrayList<Integer> set = new ArrayList<Integer>();
 		int size, i;
@@ -37,7 +37,7 @@ public class DynamicProgramming {
 	    		size *= 2;
 	        else {
 	        	System.out.println("Eroare ba!: Instance too large to solve.\n");
-	            return 0;
+	    
 	        }
 	    }
 	    
@@ -46,7 +46,7 @@ public class DynamicProgramming {
 	    }
 	    else {
 	    	System.out.println("Eroare ba!: Instance too large to solve.\n");
-	        return 0;
+	        
 	    }
 	    
 	        /*if ( ( solutions=(int *)malloc(sizeof(int)*size) ) == NULL ) {
@@ -79,9 +79,9 @@ public class DynamicProgramming {
 	        set.set(i, 1);
 	    }
 
-	    System.out.println("Best tour has length " + bestLength);
+	    reconstructTour(set,solutions,optimal);
 	    //reconstructTour(set, solutions, numberNodes, weights);
-	    return bestLength;
+	
 	}
 
 	/* This is the function that computes L(t, X). The implementation is actually recursive. */
@@ -146,4 +146,52 @@ public class DynamicProgramming {
 	    return (t+setValue*numberNodes);
 	}
 	    
+	private void reconstructTour(ArrayList<Integer> set, ArrayList<Double> solutions, Tour optimal){
+		int i;
+		Integer[] tour = new Integer[numberNodes];
+		tour[0]=0;
+		
+		set.set(0, 0);
+	    /* initial set X with all nodes included except for 0 */
+	    
+	    for ( i=1; i<numberNodes; i++ )
+	        set.set(i,1);
+	    
+	    /* find best last node */
+	    tour[numberNodes-1] = findPreviousNode(0, set, solutions);
+	    
+	    /* find predecessors one by one */
+	    set.set(tour[numberNodes-1],0); /* exclude last node */
+	    for ( i=numberNodes-2; i>0; i-- ) {
+	        tour[i] = findPreviousNode(tour[i+1], set, solutions);
+	        set.set(tour[i],0);
+	    }
+
+	    for( i = 0;i<numberNodes;i++){
+	    	optimal.addNode(tour[i]);
+	    }
+	    optimal.addNode(0);
+	}
+
+	private Integer findPreviousNode(int t, ArrayList<Integer> set,
+			ArrayList<Double> solutions) {
+		int i, node = 0;
+		double bestLength;
+		double length;
+	    
+	    set.set(t,0);
+	    bestLength=-1;
+	    for ( i=0; i<numberNodes; i++) {
+	        if ( set.get(i)==1 ) {
+	            set.set(i,0); /* take node i out */
+	            length = weights.get(t+numberNodes*i)+computeLength(i, set, solutions);
+	            if ( (bestLength<0) || (length<bestLength) ) {
+	                bestLength=length;
+	                node=i;
+	            }
+	            set.set(i,1);
+	        }
+	    }
+	    return node;
+	}
 }
