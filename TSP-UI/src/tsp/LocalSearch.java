@@ -16,7 +16,7 @@ public class LocalSearch {
 				reverseTour = new ArrayList<Integer>(testTour.getTour());
 				Collections.reverse(reverseTour);
 				if( (testTour.tourTotal(tsp) < heuristic.tourTotal(tsp)) && ( compare(heuristic.getTour(),testTour.getTour(),reverseTour) ) ){
-					heuristic.setTour(testTour.getTour());
+					heuristic.setTour(testTour.getTour());i=1;j=i+1;
 					System.out.println("2o");
 				} 
 			}

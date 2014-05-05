@@ -17,15 +17,15 @@ public class NearestNeighbour {
 			
 			min = 9999;
 			for( int j = 0 ; j < size ; j++ ){
-				distance = tsp.edge(i, j);
+				distance = tsp.edge(nextNode, j);
 				
-				if( distance != 0 && distance < min && heuristic.exists(j)){
+				if( distance != 0 && distance < min && !heuristic.exists(j)){
 					min = distance;
 					nextNode = j;
 				}
 			}
 			
-			if( heuristic.exists(nextNode) && heuristic.size() != tsp.size()){
+			if( !heuristic.exists(nextNode) && heuristic.size() != tsp.size()){
 				heuristic.addNode(nextNode);
 			}
 			

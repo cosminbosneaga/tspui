@@ -1,12 +1,29 @@
 body {
     margin: 0px;
     padding: 0px;
+    background-image: url('/TSP-UI/images/background.jpg');
+    color: #FFFFFF;
 }
+
 #forms {
 	margin:0 auto;
 	width:500px;
 	height:20px;
 	text-align:right;
+}
+
+#game, #timer{
+	margin:0 auto;
+	width:500px;
+	height:auto;
+}
+
+input{
+	background-color:transparent;
+	outline: none;
+    border-color: #9ecaed;
+    box-shadow: 0 0 10px #9ecaed;
+    color:#FFFFFF;
 }
 
 #container {
@@ -16,8 +33,6 @@ body {
 	border-radius: 10px 10px 10px 10px;
 	-moz-border-radius: 10px 10px 10px 10px;
 	-webkit-border-radius: 10px 10px 10px 10px;
-	border: 0px solid #000000;
-	background: #b8a98a;
 }
 
 #start {

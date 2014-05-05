@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -20,6 +21,11 @@ public class Evolutionary {
 	private Tour heuristicTour;
 	BufferedWriter file;
 	BufferedWriter fit;
+	
+	private void preMade(Integer difficulty){
+		Double[] easy = new Double[]{10.00,20.00,30.00,40.00,50.00,60.00,70.00,80.00,90.00,100.00};
+		this.currentPopulation.addAll(Arrays.asList(easy));
+	}
 		
 	public Instance getInstance() {
 		return instance;
@@ -202,7 +208,7 @@ public class Evolutionary {
 		file.write("NN:"+df.format(heuristicTour.tourTotal(instance)) + System.getProperty( "line.separator") );
 		System.out.println("NN:"+heuristicTour.tourTotal(instance));
 		LocalSearch ls = new LocalSearch();
-		ls.twoOpt(heuristicTour,instance);
+		//ls.twoOpt(heuristicTour,instance);
 		
 		
 		file.write("NN:" + heuristicTour.getTour().toString() + System.getProperty( "line.separator") );
@@ -245,9 +251,9 @@ public class Evolutionary {
 		// Fix negative coordinates
 		// Assume all coordinates are valid
 		boolean valid = true;
-		double minx=0, miny=0;
+		double minx=10, miny=10;
 		for(int i=0;i<size;i++){
-			if( newPopulation.get(i) < 0 ){
+			if( newPopulation.get(i) < 10 ){
 				valid = false;
 				if(i%2==0 && newPopulation.get(i)<minx){
 					minx = newPopulation.get(i);
@@ -271,7 +277,7 @@ public class Evolutionary {
 		
 		// Fix large coordinates
 		valid = true;
-		double maxx=500, maxy=500;
+		double maxx=600, maxy=600;
 		for(int i=0;i<size;i++){
 			if( i%2==0 && newPopulation.get(i)>maxx){
 				valid = false;

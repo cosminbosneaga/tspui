@@ -2,8 +2,8 @@ package tsp;
 
 public class Node {
 	
-	double x;
-    double y;
+	private double x;
+    private double y;
     
     // create a random new node
     public Node(){

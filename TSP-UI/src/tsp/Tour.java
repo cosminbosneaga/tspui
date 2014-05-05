@@ -34,10 +34,10 @@ public class Tour {
 	public boolean exists(Integer n){
 		for(int i = 0; i<size();i++){
     		if(tour.get(i) == n){
-    			return false;
+    			return true;
     		}
     	}
-		return true;
+		return false;
 	}
     
     public int size(){

@@ -163,7 +163,7 @@
 		function timer() {
 			++seconds;
 			var timerDiv = document.getElementById("timer");
-			timerDiv.innerHTML = "<p>Time:"+seconds+"</p>";
+			timerDiv.innerHTML = "<p>Time: "+seconds+"</p>";
 		}
 		
 		function stopTimer(){
@@ -186,23 +186,23 @@
 	<div id="game">
 		<img id="loading" src="/TSP-UI/images/ajax-loader.gif" width="66" height="66">
 		<div id="header">
-		<h2>Game Name</h2>
-		<form id="game" method="post" action="">
-			<input type="hidden" name="cookie" id="cookie" value="">
-			<label>Nodes: </label>
-			<input type="text" id="nodes" name="nodes">
-			<label>Mutations: </label>
-			<input type="text" id="mutations" name="mutations">
-			<input type="button" id="newGame" name="newGame" value="New Game">
-		</form>
+			<h2>Dot Wars</h2>
+			<form id="game" method="post" action="">
+				<input type="hidden" name="cookie" id="cookie" value="">
+				<label>Nodes: </label>
+				<input type="text" id="nodes" size="1" name="nodes">
+				<label>Generations: </label>
+				<input type="text" id="mutations" name="mutations">
+				<input type="button" id="newGame" name="newGame" size="2" value="New Game">
+			</form>
 		
-	</div>
+		</div>
 	
-	<div id="timer">
+		<div id="timer">
 			<p>Time: </p>
-	</div>
+		</div>
 
-	<div id="container"></div>
+		<div id="container"></div>
 	</div>
     <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v5.0.2.min.js"></script>
     <script defer="defer">
@@ -246,17 +246,18 @@
 		var startScreen = new Kinetic.Layer();
 		  
 		var startText = new Kinetic.Text({
-			x: 50,
+			x: 20,
 			y: 20,
-			width: stage.width()-150,
-			padding: 20,
-			text: 'GAME NAME\n\nWelcome to the GAME NAME. The aim of this game is to find the shortest path that connects all the points. You have up to 20 seconds so don\'t think too much',
+			width: stage.width()-140,
+			padding: 10,
+			text: 'EPISODE I\n\n\nDot Wars\n\nHelp the Republic by finding the shortest route that visits all the planets!',
 			fontSize: 18,
 			fontFamily: 'Calibri',
-			fill: 'black',
+			fill: 'yellow',
 			allign: 'center'
 		});
 		
+		startText.align("center");
 		startScreen.add(startText);
 		var loadingScreen = new Kinetic.Layer();
 		var createLoadingScreen = function() {
@@ -316,7 +317,7 @@
 					x: positions[i],
 					y: positions[i+1],
 					radius: 10,
-					fill: 'yellow',
+					fill: '#FF9933',
 					strokeWidth: 3,
 					stroke: 'black',
 					name: 'node',
@@ -325,21 +326,21 @@
 					
 				node.on('mouseover touchstart', function() {
 					//this.fillPatternImage(images.red);
-					this.fill("red");
+					this.fill("white");
 					nodes.draw();
 				});
 					
 				node.on('mouseout touchend', function() {
 					if( !visited.contains(this.id()) ){
 						//this.fillPatternImage(images.yellow);
-						this.fill("yellow");
+						this.fill("#FF9933");
 						nodes.draw();
 					}
 				});
 					
 				node.on('click', function() {
 					if(visited.contains(this.id()) === false ) {
-						addLine(this.id(),"black",3,"user",lines,visited);
+						addLine(this.id(),"yellow",3,"user",lines,visited);
 						finished(n);
 					}else{
 						if( this.id() == visited.last() && this.id() != 1 ) {
@@ -350,7 +351,7 @@
 				
 				// Display first node as already in tour
 				if( i == 0 ){
-					node.fill("red"); 
+					node.fill("white"); 
 				}
 				
 				nodes.add(node);
@@ -385,7 +386,7 @@
 			visitedSolution.push(optimal[0]);
 			for(var i=1;i<optimal.length;i++){
 				
-				addLine(optimal[i],"green",8,"optimal",solution,visitedSolution);
+				addLine(optimal[i],"green",10,"optimal",solution,visitedSolution);
 			}
 		}
 		
@@ -402,12 +403,12 @@
 		
 		function finished(n){
 			if(visited.complete(n/2)){
-				addLine(1,"black",3,"user",lines,visited);
+				addLine(1,"yellow",3,"user",lines,visited);
 				console.log(visited);
 				console.log(heuristic);
 				console.log(optimal);
 				console.log(visitedSolution);
-				drawSolution(heuristic);
+				drawSolution(optimal);
 				if(visited.compare(optimal) || visited.reverse().compare(optimal)){
 					console.log("Congratulations optimal");
 				} else 
@@ -417,6 +418,7 @@
 						console.log("Try again");
 					}
 				stopTimer();
+				seconds=0;
 			}
 		}
 		
