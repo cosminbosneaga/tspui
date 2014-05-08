@@ -1,3 +1,7 @@
+/**  
+ * This class holds a node object with x, y coordinate
+ * @author Cosmin
+ */
 package tsp;
 
 public class Node {
@@ -22,9 +26,19 @@ public class Node {
         return this.x;
     }
     
+    // set x coordinate
+    public void setX(double x){
+    	this.x = x;
+    }
+    
     // get y coordinate
     public double getY(){
         return this.y;
+    }
+    
+    // set y coordinate
+    public void setY(double y){
+    	this.y = y;
     }
     
 }

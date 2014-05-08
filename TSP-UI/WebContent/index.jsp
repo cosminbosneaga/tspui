@@ -39,8 +39,10 @@
 	    				nodes.remove();
 	    				lines.remove();
 	    				solution.remove();
-	    				
+	    				beforeGame.clear();
 	    				createLoadingScreen();
+	    				stopTimer();
+	    				seconds=0;
 	    				
 	    			},
 	    			url: '/TSP-UI/Game',
@@ -183,10 +185,11 @@
 	</script>
   </head>
   <body>
+  <img id="loading" src="/TSP-UI/images/ajax-loader.gif" width="220" height="22">
 	<div id="game">
-		<img id="loading" src="/TSP-UI/images/ajax-loader.gif" width="66" height="66">
+		
 		<div id="header">
-			<h2>Dot Wars</h2>
+			<img src="/TSP-UI/images/logo.png">
 			<form id="game" method="post" action="">
 				<input type="hidden" name="cookie" id="cookie" value="">
 				<label>Nodes: </label>
@@ -197,9 +200,10 @@
 			</form>
 		
 		</div>
-	
+		
+		
 		<div id="timer">
-			<p>Time: </p>
+			<p>Time:</p>
 		</div>
 
 		<div id="container"></div>
@@ -250,8 +254,8 @@
 			y: 20,
 			width: stage.width()-140,
 			padding: 10,
-			text: 'EPISODE I\n\n\nDot Wars\n\nHelp the Republic by finding the shortest route that visits all the planets!',
-			fontSize: 18,
+			text: 'EPISODE I\n\n\nDot Wars\n\nThe Rebuplic needs you!\n\nCan you find a way of defending all the planets and save fuel on trips?\n\nDo not stop to think.\nJust act!\nLook at the dots (stars), use the force, and find the shortest path to connect them all.',
+			fontSize: 22,
 			fontFamily: 'Calibri',
 			fill: 'yellow',
 			allign: 'center'
@@ -267,10 +271,10 @@
 			y: 100,
 			width: stage.width()-150,
 			padding: 20,
-			text: 'Please wait while the instance is created!',
+			text: 'Please wait while the battle scene is created!',
 			fontSize: 18,
 			fontFamily: 'Calibri',
-			fill: 'black',
+			fill: 'yellow',
 			allign: 'center'
 		});
 	    
@@ -281,13 +285,36 @@
 		var beforeGame = new Kinetic.Layer();
 		  
 		var startButton = new Kinetic.Rect({
-			x: 50,
+			x: stage.width()/2-100,
 			y: 20,
-			width: 100,
-	        height: 50,
-	        fill: 'green',
-	        stroke: 'black',
-			strokeWidth: 4
+			width: 80,
+	        height: 30,
+	        stroke: 'yellow',
+			strokeWidth: 4,
+			lineJoin: 'bevel'
+		});
+		
+		var startButtonText = new Kinetic.Text({
+			x: stage.width()/2-90,
+			y: 20,
+			width: stage.width()-150,
+			text: 'START',
+			fontSize: 24,
+			fontFamily: 'Calibri',
+			fill: 'yellow',
+			allign: 'center'
+		});
+		
+		var beforeText = new Kinetic.Text({
+			x: 20,
+			y: 80,
+			width: stage.width()-140,
+			padding: 10,
+			text: 'Press START when ready.\n\nThe timer will start so find the shortest tour as quick as possible!\n\nMay the force be with you!',
+			fontSize: 22,
+			fontFamily: 'Calibri',
+			fill: 'yellow',
+			allign: 'center'
 		});
 			
 		startButton.on('click', function() {
@@ -302,8 +329,11 @@
 			startTimer();
 		});
 			
+		beforeText.align("center");
+		beforeGame.add(beforeText);
+		beforeGame.add(startButtonText);
 		beforeGame.add(startButton);
-			
+		
 		var nodes = new Kinetic.Layer();
 		var lines = new Kinetic.Layer();
 		var solution = new Kinetic.Layer();
@@ -411,11 +441,18 @@
 				drawSolution(optimal);
 				if(visited.compare(optimal) || visited.reverse().compare(optimal)){
 					console.log("Congratulations optimal");
+					if(seconds < 20 ){
+						$("#timer").html("<p>You were victorious in " + heuristic + " imperial seconds!</p>");
+					}else{
+						$("#timer").html("<p>Correct! But the war has been lost for " + (seconds-20) + " imperial seconds!</p>");
+					}
 				} else 
 					if(visited.compare(heuristic) || visited.reverse().compare(heuristic)){
 						console.log("Congratulations heuristic");
+						$("#timer").html("<p>You have found close tour in " + seconds + " imperial seconds!"+heuristic+"</p>");
 					} else {
 						console.log("Try again");
+						$("#timer").html("<p>You lost the war in " + seconds + " imperial seconds!"+heuristic+"</p>");
 					}
 				stopTimer();
 				seconds=0;

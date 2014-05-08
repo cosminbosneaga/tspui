@@ -1,9 +1,10 @@
+/**  
+ * Servlet called by the web Page. Acts as intermediary between front and back end. Receives number of nodes and generations, creates the instance and sends it to client.
+ * @author Cosmin
+ */
 package tsp;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Iterator;
-
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -89,7 +90,7 @@ public class GameCreator extends HttpServlet {
 	
 	private JSONArray generateOptimalJson(Tour optimalTour) {
 		JSONArray json = new JSONArray();
-		if( optimalTour.size()>0){
+		if( optimalTour != null && optimalTour.size()>0){
 			for(int i=0;i<optimalTour.size();i++){
 				json.put(optimalTour.getNode(i));
 			}
@@ -101,7 +102,7 @@ public class GameCreator extends HttpServlet {
 
 	private JSONArray generateHeuristicJson(Tour heuristicTour){
 		JSONArray json = new JSONArray();
-		if( heuristicTour.size()>0){
+		if( heuristicTour != null && heuristicTour.size()>0){
 			for(int i=0;i<heuristicTour.size();i++){
 				json.put(heuristicTour.getNode(i));
 			}
@@ -114,7 +115,7 @@ public class GameCreator extends HttpServlet {
 	private JSONArray generatePositionsJson(Instance instance) throws JSONException{
 		JSONArray json = new JSONArray();
 		
-		if( instance.size()>0){
+		if( instance != null && instance.size()>0){
 			
 			for(int i=0;i<instance.size();i++){
 

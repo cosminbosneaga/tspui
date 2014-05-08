@@ -1,3 +1,7 @@
+/**  
+ * This class holds an array of nodes, that together form a TSP instance.
+ * @author Cosmin
+ */
 package tsp;
 
 import java.util.ArrayList;

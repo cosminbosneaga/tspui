@@ -27,6 +27,7 @@ public class Tour {
         tour.add(n);
     }
 	
+	// return the node that is on position i in array
 	public Integer getNode(Integer i){
 		return tour.get(i);
 	}
@@ -49,6 +50,7 @@ public class Tour {
     	double total=0;
     	for(int i = 0; i<size()-1;i++){
     		total += tsp.edge(tour.get(i), tour.get(i+1));
+    		
     	}
     		
     	//System.out.println("Total: "+total);
@@ -62,9 +64,9 @@ public class Tour {
     	ArrayList<Integer> end = new ArrayList<Integer>(tour.subList(j+1, tour.size()));
     	Collections.reverse(middle);
     	tour = new ArrayList<Integer>();
-    	tour.addAll(first);System.out.println("first" + first.toString());
-    	tour.addAll(middle);System.out.println("mid" + middle.toString());
-    	tour.addAll(end);System.out.println("end" + end.toString());
+    	tour.addAll(first); //System.out.println("first" + first.toString());
+    	tour.addAll(middle); //System.out.println("mid" + middle.toString());
+    	tour.addAll(end);//System.out.println("end" + end.toString());
     	
     	/*
 		int temp = tour.get(i);

@@ -7,14 +7,16 @@ body {
 
 #forms {
 	margin:0 auto;
-	width:500px;
+	width:600px;
 	height:20px;
 	text-align:right;
 }
-
+#header {
+	text-align:center;
+}
 #game, #timer{
 	margin:0 auto;
-	width:500px;
+	width:600px;
 	height:auto;
 }
 
@@ -58,7 +60,13 @@ input{
 }
 
 #loading {
-	position: absolute;
-	top:200px;
-	left:600px;
+	position:absolute;
+	margin:0 auto;
+	padding-top:180px;
+	padding-left:43%;
+	text-align:center;
+}
+
+#timer {
+	text-align:center;
 }

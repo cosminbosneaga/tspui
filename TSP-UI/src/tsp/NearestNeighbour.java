@@ -12,7 +12,7 @@ public class NearestNeighbour {
 		
 		// minimum distance between nodes
 		double min = 9999, distance;
-		int nextNode = 0;
+		int nextNode = 0, tobeNode=0;
 		for( int i = 0 ; i < size ; i++ ){
 			
 			min = 9999;
@@ -21,11 +21,12 @@ public class NearestNeighbour {
 				
 				if( distance != 0 && distance < min && !heuristic.exists(j)){
 					min = distance;
-					nextNode = j;
+					tobeNode = j;
 				}
 			}
 			
-			if( !heuristic.exists(nextNode) && heuristic.size() != tsp.size()){
+			if( !heuristic.exists(tobeNode) && heuristic.size() != tsp.size()){
+				nextNode = tobeNode;
 				heuristic.addNode(nextNode);
 			}
 			
