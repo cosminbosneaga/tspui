@@ -29,7 +29,6 @@ public class DynamicProgramming {
 		int size, i;
 		double length, bestLength;
 
-	    /* first we allocate the space for L[][] */
 	    size=1;
 	    for ( i=0; i<numberNodes; i++ ) {
 	    	if ( 2*size>size )
@@ -48,29 +47,22 @@ public class DynamicProgramming {
 	        
 	    }
 	    
-	        /*if ( ( solutions=(int *)malloc(sizeof(int)*size) ) == NULL ) {
-	            System.out.println("Eroare ba!: Ceva in C ca nu poate aloca memorie.\n");
-	            return;
-	        }*/
-	    /* We initialise all entries as -1; this signals `not computed yet'. */
 	    for ( i=0; i<size; i++ ){
 	            solutions.add((double) -1);
 	    }
 
-	    /* set X to set of all nodes except node 0 */
-//	        set[0]=0;
 	    set.add(0);
 	    for ( i=1; i<numberNodes; i++ ){
 	    	set.add(1);
-//	            set[i]=1;
+
 	    }
 
-	    /* compute L(0, t, X) for all t and maximal X */
+
 	    bestLength = -1;
 	    for ( i=1; i<numberNodes; i++ ) {
 	        set.set(i, 0);
 	        
-	        length = computeLength(i, set, solutions) + weights.get(i);
+	        length = calculateDistance(i, set, solutions) + weights.get(i);
 	        
 	        if ( (bestLength<0) || (length<bestLength) ) {
 	            bestLength=length;
@@ -79,26 +71,22 @@ public class DynamicProgramming {
 	    }
 
 	    reconstructTour(set,solutions,optimal);
-	    //reconstructTour(set, solutions, numberNodes, weights);
+	
 	
 	}
 
-	/* This is the function that computes L(t, X). The implementation is actually recursive. */
-	/* We store all results in L[][] and look up if the result is already there first. */
-	/* In comparison to a proper implementation this wastes a factor or n/2 in space. */
-	private double computeLength(int t, ArrayList<Integer> set, ArrayList<Double> solutions) {
+	private double calculateDistance(int t, ArrayList<Integer> set, ArrayList<Double> solutions) {
 		int i, emptySet, ind;
 		double length;
 	    double bestLength;
-	    //X = set, L = solutions
-	    /* respond to requests for already computed results */
+	    
 	    ind=resultIndex(t, set);
 	    if ( solutions.get(ind)>=0 ) {
 	    	// solutio
 	    	return solutions.get(ind);
 	    }
 
-	    /* respond to base case empty set */
+	    
 	    emptySet=1;
 	    i=0;
 	    while ( (emptySet == 1) && (i<numberNodes) ) {
@@ -108,18 +96,18 @@ public class DynamicProgramming {
 	    }
 	    
 	    if ( emptySet == 1 ) {
-	    	//solutions.set(ind, weights.get(t*numberNodes));
+	    	
 	        return weights.get(t*numberNodes);
 	    }
 
-	    /* compute remaining case recursively */
+	    
 	    bestLength=-1;
 	    for ( i=0; i<numberNodes; i++) {
 	    	if ( set.get(i)==1 ) {
-	        	set.set(i, 0); /* take node i out */
+	        	set.set(i, 0); 
 	        	
-	        	length = weights.get(i+numberNodes*t)+computeLength(i, set, solutions);
-	            /* maximal depth of recursion is n-1; since we use memory >n*2^n this is probably okay */
+	        	length = weights.get(i+numberNodes*t)+calculateDistance(i, set, solutions);
+	            
 	        	if ( (bestLength<0) || (length<bestLength) ) {
 	        		bestLength = length;
 	        	}
@@ -151,16 +139,16 @@ public class DynamicProgramming {
 		tour[0]=0;
 		
 		set.set(0, 0);
-	    /* initial set X with all nodes included except for 0 */
+	    
 	    
 	    for ( i=1; i<numberNodes; i++ )
 	        set.set(i,1);
 	    
-	    /* find best last node */
+	    // find best last node 
 	    tour[numberNodes-1] = findPreviousNode(0, set, solutions);
 	    
-	    /* find predecessors one by one */
-	    set.set(tour[numberNodes-1],0); /* exclude last node */
+	    // find predecessors one by one
+	    set.set(tour[numberNodes-1],0); 
 	    for ( i=numberNodes-2; i>0; i-- ) {
 	        tour[i] = findPreviousNode(tour[i+1], set, solutions);
 	        set.set(tour[i],0);
@@ -182,8 +170,8 @@ public class DynamicProgramming {
 	    bestLength=-1;
 	    for ( i=0; i<numberNodes; i++) {
 	        if ( set.get(i)==1 ) {
-	            set.set(i,0); /* take node i out */
-	            length = weights.get(t+numberNodes*i)+computeLength(i, set, solutions);
+	            set.set(i,0); 
+	            length = weights.get(t+numberNodes*i)+calculateDistance(i, set, solutions);
 	            if ( (bestLength<0) || (length<bestLength) ) {
 	                bestLength=length;
 	                node=i;

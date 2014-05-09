@@ -1,11 +1,42 @@
 <!DOCTYPE HTML>
 <html>
   <head>
+  	<title>Dot Wars</title>
+  	<link rel="shortcut icon" media="all" type="image/png" href="favicon.png" />
     <link rel="stylesheet" type="text/css" href="style.css"/>
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/jquery-1.9.1.js"></script>
 	<script type="text/javascript" src="js/jquery-ui.js"></script>
 	<script type="text/javascript">
+	function validateValues(){
+		var numberRegex =  /^[0-9]+$/;
+		var nodes = $("#nodes").val();
+		var mutations = $("#mutations").val();
+		$("#errors").hide();
+		
+		if (nodes == '' ){
+			$("#errors").html("<p>You must insert the number of nodes!</p>"); 
+			$("#errors").show();
+			return false;
+		}
+		if (mutations == '' ){
+			$("#errors").html("<p>You must insert the number of generations!</p>"); 
+			$("#errors").show();
+			return false;
+		}
+		if ( !numberRegex.test(nodes) || nodes<3 || nodes>15 ){
+			$("#errors").html("<p>Nodes are numbers between 3 and 15!</p>"); 
+			$("#errors").show();
+			return false;
+		}
+		if ( !numberRegex.test(mutations) || mutations<0 || mutations>500){
+			$("#errors").html("<p>Generations are numbers between 0 and 500!</p>"); 
+			$("#errors").show();
+			return false;
+		}
+		return true;
+	}
+	
 	$(document).ajaxStart(function(e) {
 		$( "#loading").show();
 	});
@@ -15,66 +46,68 @@
 	
 		$(document).ready(function(e) {
 			$( "#loading" ).hide();
-			
+			$("#errors").hide();
 	    	$( "#newGame" ).on('click', function( event ) {
 	    		
-	    		event.preventDefault();
-	    		var data = {
-	    				"nodes": $("#nodes").val(),
-	    				"mutations": $("#mutations").val()
+	    		if( validateValues()){
+		    		event.preventDefault();
+		    		var data = {
+		    				"nodes": $("#nodes").val(),
+		    				"mutations": $("#mutations").val()
+		    		}
+	
+		    		console.log("sendig data");
+		    		
+	
+		    		$.ajax({
+		    			beforeSend: function() {
+		    				console.log("before");
+		    				startScreen.remove();
+		    				
+		    				nodes.destroyChildren();
+		    				lines.destroyChildren();
+		    				solution.destroyChildren();
+		    				
+		    				nodes.remove();
+		    				lines.remove();
+		    				solution.remove();
+		    				beforeGame.clear();
+		    				createLoadingScreen();
+		    				stopTimer();
+		    				seconds=0;
+		    				
+		    			},
+		    			url: '/TSP-UI/Game',
+		    			type: 'POST',
+		    			data:  data,
+		    			dataType: "json",
+		    			async: true,
+		    			success: function(response)
+		    			{
+		    				heuristic.clear();
+		    				optimal.clear();
+		    				
+		    				loadingScreen.remove();
+		    				addNodes( response.instance  );
+		    				createHeuristicTour(response.heuristic);
+		    				createOptimalTour(response.optimal);
+		    				
+		    				stage.add(beforeGame);
+		    				/*$.each(response, function(i, val){
+		    					console.log(val);
+		    				});*/
+		    				//console.log("raspuns"+response.instance);	
+		    			},
+		    			error: function(xhr, ajaxOptions, thrownError) 
+		    			{	
+		    				console.log("POST Customer Data Error!");
+		    				console.log(xhr.status);
+		    				console.log(thrownError);
+		    			}          
+		    		});
+	
+		    		event.preventDefault();
 	    		}
-
-	    		console.log("sendig data");
-	    		
-
-	    		$.ajax({
-	    			beforeSend: function() {
-	    				console.log("before");
-	    				startScreen.remove();
-	    				
-	    				nodes.destroyChildren();
-	    				lines.destroyChildren();
-	    				solution.destroyChildren();
-	    				
-	    				nodes.remove();
-	    				lines.remove();
-	    				solution.remove();
-	    				beforeGame.clear();
-	    				createLoadingScreen();
-	    				stopTimer();
-	    				seconds=0;
-	    				
-	    			},
-	    			url: '/TSP-UI/Game',
-	    			type: 'POST',
-	    			data:  data,
-	    			dataType: "json",
-	    			async: true,
-	    			success: function(response)
-	    			{
-	    				heuristic.clear();
-	    				optimal.clear();
-	    				
-	    				loadingScreen.remove();
-	    				addNodes( response.instance  );
-	    				createHeuristicTour(response.heuristic);
-	    				createOptimalTour(response.optimal);
-	    				
-	    				stage.add(beforeGame);
-	    				/*$.each(response, function(i, val){
-	    					console.log(val);
-	    				});*/
-	    				//console.log("raspuns"+response.instance);	
-	    			},
-	    			error: function(xhr, ajaxOptions, thrownError) 
-	    			{	
-	    				console.log("POST Customer Data Error!");
-	    				console.log(xhr.status);
-	    				console.log(thrownError);
-	    			}          
-	    		});
-
-	    		event.preventDefault();
 	    	});
 	    });
 		var n;
@@ -186,7 +219,7 @@
   </head>
   <body>
   <img id="loading" src="/TSP-UI/images/ajax-loader.gif" width="220" height="22">
-	<div id="game">
+	<div id="gamer">
 		
 		<div id="header">
 			<img src="/TSP-UI/images/logo.png">
@@ -198,7 +231,7 @@
 				<input type="text" id="mutations" name="mutations">
 				<input type="button" id="newGame" name="newGame" size="2" value="New Game">
 			</form>
-		
+			<div id="errors"></div>
 		</div>
 		
 		
@@ -257,7 +290,7 @@
 			text: 'EPISODE I\n\n\nDot Wars\n\nThe Rebuplic needs you!\n\nCan you find a way of defending all the planets and save fuel on trips?\n\nDo not stop to think.\nJust act!\nLook at the dots (stars), use the force, and find the shortest path to connect them all.',
 			fontSize: 22,
 			fontFamily: 'Calibri',
-			fill: 'yellow',
+			fill: '#ffd632',
 			allign: 'center'
 		});
 		
@@ -274,7 +307,7 @@
 			text: 'Please wait while the battle scene is created!',
 			fontSize: 18,
 			fontFamily: 'Calibri',
-			fill: 'yellow',
+			fill: '#ffd632',
 			allign: 'center'
 		});
 	    
@@ -289,7 +322,7 @@
 			y: 20,
 			width: 80,
 	        height: 30,
-	        stroke: 'yellow',
+	        stroke: '#ffd632',
 			strokeWidth: 4,
 			lineJoin: 'bevel'
 		});
@@ -301,7 +334,7 @@
 			text: 'START',
 			fontSize: 24,
 			fontFamily: 'Calibri',
-			fill: 'yellow',
+			fill: '#ffd632',
 			allign: 'center'
 		});
 		
@@ -310,12 +343,13 @@
 			y: 80,
 			width: stage.width()-140,
 			padding: 10,
-			text: 'Press START when ready.\n\nThe timer will start so find the shortest tour as quick as possible!\n\nMay the force be with you!',
+			text: 'Press START when ready.\nThe start point is selected in white.\nThe timer will start so find the shortest tour as quick as possible!\n\nMay the force be with you!',
 			fontSize: 22,
 			fontFamily: 'Calibri',
-			fill: 'yellow',
+			fill: '#ffd632',
 			allign: 'center'
 		});
+		
 			
 		startButton.on('click', function() {
 			beforeGame.clear();
@@ -333,6 +367,21 @@
 		beforeGame.add(beforeText);
 		beforeGame.add(startButtonText);
 		beforeGame.add(startButton);
+		
+		var legendObj = new Image();
+	      legendObj.onload = function() {
+	        var legend = new Kinetic.Image({
+	          x: 120,
+	          y: 240,
+	          image: legendObj
+	        });
+
+	        // add the shape to the layer
+	        beforeGame.add(legend);
+
+	        
+	      };
+	      legendObj.src = '/TSP-UI/images/legend.png';
 		
 		var nodes = new Kinetic.Layer();
 		var lines = new Kinetic.Layer();
@@ -370,7 +419,7 @@
 					
 				node.on('click', function() {
 					if(visited.contains(this.id()) === false ) {
-						addLine(this.id(),"yellow",3,"user",lines,visited);
+						addLine(this.id(),"#ffd632",3,"user",lines,visited);
 						finished(n);
 					}else{
 						if( this.id() == visited.last() && this.id() != 1 ) {
@@ -416,7 +465,7 @@
 			visitedSolution.push(optimal[0]);
 			for(var i=1;i<optimal.length;i++){
 				
-				addLine(optimal[i],"green",10,"optimal",solution,visitedSolution);
+				addLine(optimal[i],"#00CC00",10,"optimal",solution,visitedSolution);
 			}
 		}
 		
@@ -433,7 +482,7 @@
 		
 		function finished(n){
 			if(visited.complete(n/2)){
-				addLine(1,"yellow",3,"user",lines,visited);
+				addLine(1,"#ffd632",3,"user",lines,visited);
 				console.log(visited);
 				console.log(heuristic);
 				console.log(optimal);
@@ -442,17 +491,17 @@
 				if(visited.compare(optimal) || visited.reverse().compare(optimal)){
 					console.log("Congratulations optimal");
 					if(seconds < 20 ){
-						$("#timer").html("<p>You were victorious in " + heuristic + " imperial seconds!</p>");
+						$("#timer").html("<p>You were victorious in " + seconds + " imperial seconds!</p>");
 					}else{
 						$("#timer").html("<p>Correct! But the war has been lost for " + (seconds-20) + " imperial seconds!</p>");
 					}
 				} else 
 					if(visited.compare(heuristic) || visited.reverse().compare(heuristic)){
 						console.log("Congratulations heuristic");
-						$("#timer").html("<p>You have found close tour in " + seconds + " imperial seconds!"+heuristic+"</p>");
+						$("#timer").html("<p>You have found close tour in " + seconds + " imperial seconds!</p>");
 					} else {
 						console.log("Try again");
-						$("#timer").html("<p>You lost the war in " + seconds + " imperial seconds!"+heuristic+"</p>");
+						$("#timer").html("<p>You lost the war in " + seconds + " imperial seconds!</p>");
 					}
 				stopTimer();
 				seconds=0;

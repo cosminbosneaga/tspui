@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 public class Evolutionary {
@@ -21,6 +20,8 @@ public class Evolutionary {
 	BufferedWriter file;
 	BufferedWriter fit;
 	
+	// variables used for testing
+	/*
 	private void preMade(Integer difficulty){
 		Double[] n80 = new Double[]{88.92, 114.81, 102.11, 210.22, 197.88, 360.37, 296.51, 282.61, 423.98, 411.49, 293.00, 215.09, 407.83, 345.77, 333.28, 474.7};
 		Double[] n8125 = new Double[]{153.59, 239.01, 278.08, 235.67, 223.86, 379.86, 382.31, 342.24, 358.03, 329.62, 351.22, 463.71, 499.19, 498.62, 470.17, 415.48};
@@ -61,7 +62,8 @@ public class Evolutionary {
 	        instance.addNode(city);
 		}
 	}
-		
+	*/
+	
 	public Instance getInstance() {
 		return instance;
 	}
@@ -115,11 +117,11 @@ public class Evolutionary {
 		file = new BufferedWriter(new FileWriter("C:\\example.txt"));
 		final long startTime = System.nanoTime();
 		
-		preMade(size);
+		//preMade(size);
 		
 		
 		// step 1, generate random population
-		//generateCurrentPopulation(size,25,500);
+		generateCurrentPopulation(size,25,500);
 		
 		initialize();
 		do{
@@ -144,6 +146,7 @@ public class Evolutionary {
 		System.out.println(duration + " " + duration/1000000000.0);
 	}
 	
+	// initialize variables
 	private void initialize(){
 		sigma = 1;
 		step = 0;
@@ -170,6 +173,7 @@ public class Evolutionary {
 		}
 	}*/
 	
+	// mutate the current population
 	private void generateNewPopulation() throws IOException{
 		for(int i=0;i<size;i++){
 			Random rnd = new Random();
@@ -183,6 +187,7 @@ public class Evolutionary {
 		printArr(newPopulation);
 	}
 	
+	// check if mutation was successful
 	private void successful() throws IOException{
 		file.write("--Current Fitness--"  + System.getProperty( "line.separator") );
 		double currentFitness = fitness(currentPopulation);
@@ -220,6 +225,7 @@ public class Evolutionary {
 		}
 	}
 	
+	// copy population positions as instance
 	private void createInstance(ArrayList<Double> population){
 		instance = new Instance();
 		for(int i=0;i<size;i+=2){
@@ -229,6 +235,7 @@ public class Evolutionary {
 		}
 	}
 	
+	// calculate fitness
 	private double fitness(ArrayList<Double> population) throws IOException{
 		double heuristicLength=0, optimalLength =0;
 		
@@ -249,7 +256,7 @@ public class Evolutionary {
 		file.write("NN:"+df.format(heuristicTour.tourTotal(instance)) + System.getProperty( "line.separator") );
 		System.out.println("NN:"+heuristicTour.tourTotal(instance));
 		LocalSearch ls = new LocalSearch();
-		//ls.twoOpt(heuristicTour,instance);
+		ls.twoOpt(heuristicTour,instance);
 		
 		
 		file.write("NN:" + heuristicTour.getTour().toString() + System.getProperty( "line.separator") );

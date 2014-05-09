@@ -1,16 +1,31 @@
 body {
     margin: 0px;
     padding: 0px;
-    background-image: url('/TSP-UI/images/background.jpg');
-    color: #FFFFFF;
+    background: url('/TSP-UI/images/background3.jpg') no-repeat center center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
-#forms {
+#errors {
+	background-color: #FF0000;
 	margin:0 auto;
-	width:600px;
-	height:20px;
-	text-align:right;
+	width:350px;
+	height:25px;
+	opacity: 0.9;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border: 1px solid #000000;
+	font-size:100%;
+	font-weight:bold;
 }
+#errors p{
+	display:inline;
+	padding:0;
+}
+
 #header {
 	text-align:center;
 }
@@ -18,6 +33,8 @@ body {
 	margin:0 auto;
 	width:600px;
 	height:auto;
+	font-weight:bold;
+	color:#ffd632;
 }
 
 input{
